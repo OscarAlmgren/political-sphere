@@ -65,7 +65,7 @@ Corrections to party positions or seat counts, new countries or languages, bug f
 
 | Branch | Purpose |
 |---|---|
-| `main` | What is live on GitHub Pages. Updated only from `test`. |
+| `main` | What is live on GitHub Pages. **Protected:** no direct pushes, no force pushes, and it only accepts pull requests from `test` (the required check "Only test may merge into main" fails for any other source branch, including forks). |
 | `test` | Staging. Changes from `dev` are verified here (tests pass, manual check in both languages) before release. |
 | `dev` | Integration. **All pull requests target `dev`.** |
 
