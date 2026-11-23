@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politisk kompass 4D</title>
-<link rel="stylesheet" href="style.css?v=20261123d">
+<link rel="stylesheet" href="style.css?v=20261123e">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261123d",
-    "./i18n.js": "./i18n.js?v=20261123d",
-    "./countries.js": "./countries.js?v=20261123d",
-    "./governments.js": "./governments.js?v=20261123d",
-    "./explain.js": "./explain.js?v=20261123d",
-    "./data.js": "./data.js?v=20261123d",
-    "./math.js": "./math.js?v=20261123d",
-    "./table.js": "./table.js?v=20261123d"
+    "./app.js": "./app.js?v=20261123e",
+    "./i18n.js": "./i18n.js?v=20261123e",
+    "./countries.js": "./countries.js?v=20261123e",
+    "./governments.js": "./governments.js?v=20261123e",
+    "./explain.js": "./explain.js?v=20261123e",
+    "./data.js": "./data.js?v=20261123e",
+    "./math.js": "./math.js?v=20261123e",
+    "./table.js": "./table.js?v=20261123e"
   }
 }
 </script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261123d in the import map
-     and in the stylesheet link: sed -i '' 's/20261123d/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261123e in the import map
+     and in the stylesheet link: sed -i '' 's/20261123e/NEW/g' index.html -->
 
 </head>
 <body>
@@ -163,6 +163,20 @@
       <p class="foot" data-i18n="foot">Matchning % = (1 − d/4) × 100, där 4 är det största möjliga 4D-avståndet. Cosinus jämför bara riktning. Land A ritas som sfärer (●), land B som diamanter (◆). Partiernas positioner är grova, illustrativa uppskattningar, inte mätningar. Se ”Varifrån kommer siffrorna?” ovan.</p>
     </div>
   </aside>
+
+  <div id="welcome" hidden>
+    <section id="welcome-box" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <h2 id="welcome-title" data-i18n="welcome.title">Välkommen till den politiska kompassen i 4D</h2>
+      <p data-i18n="welcome.intro">Varje parti är en punkt i en 3D-ruta, och den fjärde dimensionen syns som färg och storlek. Rutan är interaktiv, så utforska den själv:</p>
+      <ul>
+        <li><b data-i18n="welcome.i1.k">Rotera och zooma</b><span data-i18n="welcome.i1.t">Dra i rutan för att vrida den. Scrolla eller nyp för att zooma.</span></li>
+        <li><b data-i18n="welcome.i2.k">Klicka på partierna</b><span data-i18n="welcome.i2.t">Klicka på ett parti, antingen bollen eller etiketten, för att se dess position och fästa informationen. Håll muspekaren över för en snabbtitt.</span></li>
+        <li><b data-i18n="welcome.i3.k">Klicka på axlarna</b><span data-i18n="welcome.i3.t">Klicka på en axeletikett i rutan, till exempel +X eller −Y, för en förklaring av vad den änden av axeln står för.</span></li>
+        <li><b data-i18n="welcome.i4.k">Byt vy</b><span data-i18n="welcome.i4.t">Välj upp till två länder i panelen och använd vyknapparna för att titta rakt in i rutan i 2D.</span></li>
+      </ul>
+      <button id="welcome-start" class="btn" type="button" data-i18n="welcome.start">Börja utforska</button>
+    </section>
+  </div>
 </div>
 
 <section id="fallback" hidden>

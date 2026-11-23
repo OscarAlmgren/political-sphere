@@ -1160,3 +1160,26 @@ youObj.group.visible = state.showYou; // before applyCountrySelection, so a hidd
 layout();
 applyCountrySelection(); // creates the default country's parties, syncs the picker, renders
 renderer.setAnimationLoop(frame);
+
+/* Welcome modal: shown on a visitor's first visit and remembered once dismissed. The scene and panel are made inert
+ * while it is open, so keyboard focus and clicks stay inside the dialog. */
+const welcome = $('welcome');
+const WELCOME_KEY = 'political-sphere:welcome-seen';
+const behindWelcome = [stage, hud];
+function closeWelcome() {
+  if (welcome.hidden) return;
+  welcome.hidden = true;
+  behindWelcome.forEach((n) => { n.inert = false; });
+  storage.set(WELCOME_KEY, '1');
+}
+if (storage.get(WELCOME_KEY) !== '1') {
+  behindWelcome.forEach((n) => { n.inert = true; });
+  welcome.hidden = false;
+  $('welcome-start').focus({ preventScroll: true });
+  $('welcome-start').addEventListener('click', closeWelcome);
+  welcome.addEventListener('pointerdown', (ev) => { if (ev.target === welcome) closeWelcome(); }); // click outside the box
+  welcome.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') closeWelcome();
+    else if (ev.key === 'Tab') ev.preventDefault(); // the start button is the only focusable element
+  });
+}
