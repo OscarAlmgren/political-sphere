@@ -152,6 +152,7 @@ function createEntity(e, isYou = false) {
   labelEl.style.color = e.partyColor;
   if (isYou) tr(labelEl, 'you.label'); // "You" / "Du"
   if (e.country) labelEl.prepend(flagImg(e.country)); // flag next to the party abbreviation (not for "You")
+  if (!isYou) labelEl.appendChild(el('span', 'pm-star', '★')); // shown only for a prime minister's party while governments are on
   const label = new CSS2DObject(labelEl);
 
   group.add(line, dot, sphere, hit, label);
@@ -527,6 +528,7 @@ function govRole(obj) {
 
 function rebuildGovernment() {
   govRings.length = 0;
+  for (const o of entityById.values()) o.labelEl.classList.remove('is-pm'); // clears every ★; re-added below
   for (const child of [...govGroup.children]) {
     govGroup.remove(child);
     if (child.userData.own) { child.geometry.dispose(); child.material.dispose(); }
@@ -548,6 +550,7 @@ function rebuildGovernment() {
 
     // Outside supporters: thin amber ring, dashed line to the prime minister's party.
     const pm = byAbbr.get(g.pm);
+    if (pm) pm.labelEl.classList.add('is-pm'); // ★ on the prime minister's party label, matching the legend
     for (const a of g.support) {
       const o = byAbbr.get(a);
       if (!o) continue;

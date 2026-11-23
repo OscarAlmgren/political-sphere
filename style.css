@@ -66,6 +66,9 @@ body {
 }
 .entity-label.you { background: #fff; color: #10142e !important; text-shadow: none; }
 .entity-label.dim { opacity: 0.2; }
+/* ★ marking the prime minister's party (only while "Show governing parties" is on) */
+.entity-label .pm-star { display: none; margin-left: 4px; color: #3ddc97; text-shadow: 0 0 3px #000; }
+.entity-label.is-pm .pm-star { display: inline; }
 
 /* ---- Tooltip ---- */
 #tooltip {
