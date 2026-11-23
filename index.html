@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politisk kompass 4D</title>
-<link rel="stylesheet" href="style.css?v=20261123c">
+<link rel="stylesheet" href="style.css?v=20261123d">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261123c",
-    "./i18n.js": "./i18n.js?v=20261123c",
-    "./countries.js": "./countries.js?v=20261123c",
-    "./governments.js": "./governments.js?v=20261123c",
-    "./explain.js": "./explain.js?v=20261123c",
-    "./data.js": "./data.js?v=20261123c",
-    "./math.js": "./math.js?v=20261123c",
-    "./table.js": "./table.js?v=20261123c"
+    "./app.js": "./app.js?v=20261123d",
+    "./i18n.js": "./i18n.js?v=20261123d",
+    "./countries.js": "./countries.js?v=20261123d",
+    "./governments.js": "./governments.js?v=20261123d",
+    "./explain.js": "./explain.js?v=20261123d",
+    "./data.js": "./data.js?v=20261123d",
+    "./math.js": "./math.js?v=20261123d",
+    "./table.js": "./table.js?v=20261123d"
   }
 }
 </script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261123c in the import map
-     and in the stylesheet link: sed -i '' 's/20261123c/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261123d in the import map
+     and in the stylesheet link: sed -i '' 's/20261123d/NEW/g' index.html -->
 
 </head>
 <body>
@@ -45,6 +45,20 @@
     </section>
     <div id="tooltip" hidden></div>
     <div id="notice" role="alert" hidden></div>
+    <section id="compare-toast" role="region" aria-labelledby="compare-title" hidden>
+      <header class="ct-top">
+        <h2 id="compare-title" data-i18n="compare.title">Jämförelse mellan länder</h2>
+        <button id="compare-close" type="button" aria-label="Stäng" data-i18n-aria-label="compare.close">×</button>
+      </header>
+      <p data-i18n="compare.body">Varje lands partier har främst placerats utifrån det egna landets politik, så de två länderna går inte att lägga exakt över varandra. Se avstånden mellan dem som en grov fingervisning, inte som exakta mått.</p>
+      <div class="ct-actions">
+        <label class="check">
+          <input type="checkbox" id="compare-hide" autocomplete="off">
+          <span data-i18n="compare.dontShow">Visa inte detta igen</span>
+        </label>
+        <button id="compare-more" class="ct-link" type="button" data-i18n="compare.more">Så togs siffrorna fram</button>
+      </div>
+    </section>
   </main>
 
   <aside id="hud" aria-label="Kontroller och resultat" data-i18n-aria-label="hud.aria">
