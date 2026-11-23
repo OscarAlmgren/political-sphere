@@ -66,6 +66,9 @@ body {
 }
 .entity-label.you { background: #fff; color: #10142e !important; text-shadow: none; }
 .entity-label.dim { opacity: 0.2; }
+/* ★ marking the prime minister's party (only while "Show governing parties" is on) */
+.entity-label .pm-star { display: none; margin-left: 4px; color: #3ddc97; text-shadow: 0 0 3px #000; }
+.entity-label.is-pm .pm-star { display: inline; }
 
 /* ---- Tooltip ---- */
 #tooltip {
@@ -139,15 +142,28 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: 
 .lang-opt[aria-selected="true"] .name { color: var(--ink); font-weight: 600; }
 .lang-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: var(--accent); }
 
+/* Minimise / maximise the panel. The header (title + language) always stays visible; only the settings body hides.
+   Shown at every screen size. A chevron on an accent-coloured button so it can't be mistaken for the language dropdown. */
 #hud-toggle {
-  display: none;
-  width: 34px; height: 34px; flex: none;
-  border-radius: 10px; border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.06); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; flex: none; padding: 0; /* 44px: comfortable thumb target */
+  border-radius: 12px; border: 2px solid var(--accent);
+  background: rgba(139, 157, 255, 0.16); color: var(--ink);
   cursor: pointer;
 }
-#hud-toggle::before { content: "▾"; font-size: 16px; display: block; }
-#hud.collapsed #hud-toggle::before { content: "▴"; }
+#hud-toggle:hover { background: rgba(139, 157, 255, 0.32); }
+#hud-toggle::before {
+  content: ""; width: 11px; height: 11px;
+  border-right: 3px solid currentColor; border-bottom: 3px solid currentColor;
+  transform: translateY(3px) rotate(-135deg); /* chevron up: on desktop the panel collapses upward */
+  transition: transform 0.2s;
+}
+#hud.collapsed #hud-toggle::before { transform: translateY(-3px) rotate(45deg); } /* chevron down: expand */
+#hud.collapsed #hud-body { display: none; }
+#hud.collapsed .hud-head { margin-bottom: 0; }
+
+/* Drag-handle style grab bar (phones only): tap it to minimise / maximise too. */
+.hud-handle { display: none; }
 
 /* Sliders */
 .slider-row { margin-bottom: 10px; }
@@ -227,6 +243,24 @@ input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--a
 #all-parties { margin-top: 4px; }
 #data-info { width: 100%; margin-top: 10px; text-align: left; font-weight: 600; }
 .seat-check { margin-top: 10px; font-weight: 600; }
+
+/* Governments: legend + per-country summary */
+.gov-check { font-weight: 600; }
+.gov-legend { list-style: none; margin: 10px 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-dim); }
+.gov-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.gov-legend .sw { display: inline-block; width: 26px; height: 0; border-top: 3px solid #3ddc97; }
+.gov-legend .sw-sup { border-top: 3px dashed #ffb347; }
+.gov-legend .star { color: #3ddc97; font-size: 13px; }
+#gov-summary .ex-country { margin-top: 8px; }
+.gov-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 6px 0 0; font-size: 13px; }
+.gov-line .lab { color: var(--ink-dim); margin-right: 2px; }
+.gov-line .chip.gov { box-shadow: 0 0 0 2px #3ddc97; }
+.gov-line .chip.sup { box-shadow: 0 0 0 2px #ffb347; }
+.ex-head .badge {
+  margin-left: auto; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px;
+  background: #5b2a12; border: 1px solid #ff9a5c; color: #ffe3d1;
+}
+.gov-note { margin: 6px 0 0; font-size: 12px; color: var(--ink-dim); line-height: 1.4; }
 .hint-small { font-size: 11px; color: var(--ink-dim); margin: 4px 0 0; line-height: 1.4; }
 
 /* Axis explainer box */
@@ -326,11 +360,17 @@ summary { cursor: pointer; font-weight: 600; color: var(--ink-dim); }
     border-radius: 18px 18px 0 0; border-bottom: 0;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
-  #hud-toggle { display: block; }
-  #hud.collapsed #hud-body { display: none; }
+  /* Bottom sheet: it collapses downward, so the chevron points down when open and up when minimised. */
+  #hud-toggle::before { transform: translateY(-3px) rotate(45deg); }
+  #hud.collapsed #hud-toggle::before { transform: translateY(3px) rotate(-135deg); }
+  .hud-handle {
+    display: block; position: relative; width: 44px; height: 5px; margin: -6px auto 10px;
+    border-radius: 3px; background: rgba(255, 255, 255, 0.4); cursor: pointer;
+  }
+  .hud-handle::after { content: ""; position: absolute; inset: -14px -30px; } /* larger tap area than the visible bar */
   #explainer { width: calc(100% - 24px); max-height: calc(100% - 24px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .switch-track, .switch-track::after, .entity-label { transition: none; }
+  .switch-track, .switch-track::after, .entity-label, #hud-toggle::before { transition: none; }
 }

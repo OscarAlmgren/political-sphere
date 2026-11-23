@@ -3,10 +3,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { AXES, YOU, SLICE_RADIUS, MAX_COUNTRIES } from './data.js';
 import { COUNTRIES, COUNTRY_GROUPS, COUNTRY_BY_CODE, DEFAULT_COUNTRY } from './countries.js';
-import { getClosestMatches, wToColor, wToScale, seatScale } from './math.js';
+import { getClosestMatches, wToColor, wToScale, seatScale, euclideanDistance4D, minimumSpanningTree } from './math.js';
+import { GOVERNMENT_BY_CODE } from './governments.js';
 import { getPole, getDataNotes, isCustomAxis, strengthWord, countryLean } from './explain.js';
 import { el, flagImg, fmtSigned, renderPartyTable } from './table.js';
-import { LANGS, t, tr, trAttr, trCountry, getLang, setLang, onLangChange, countryName, electionLabel } from './i18n.js';
+import { LANGS, t, tr, trAttr, trCountry, getLang, setLang, onLangChange, countryName, electionLabel, monthLabel } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -25,6 +26,7 @@ const state = {
   slots: [DEFAULT_COUNTRY, null], // selected country codes: slot 0 = A (spheres), slot 1 = B (diamonds)
   showYou: false, // the "You" marker starts hidden; tick the checkbox to show it
   bySeats: false, // size party bubbles by seat share in the latest election
+  showGov: false, // draw governing parties (node graph) and outside supporters (dashed)
   explain: null,  // { type: 'axis', axis, sign } or { type: 'data' } while the explainer box is open
   slice: false,
   pinned: null, // entity id pinned by click/tap
@@ -150,6 +152,7 @@ function createEntity(e, isYou = false) {
   labelEl.style.color = e.partyColor;
   if (isYou) tr(labelEl, 'you.label'); // "You" / "Du"
   if (e.country) labelEl.prepend(flagImg(e.country)); // flag next to the party abbreviation (not for "You")
+  if (!isYou) labelEl.appendChild(el('span', 'pm-star', '★')); // shown only for a prime minister's party while governments are on
   const label = new CSS2DObject(labelEl);
 
   group.add(line, dot, sphere, hit, label);
@@ -463,12 +466,145 @@ function applyCountrySelection() {
     }
   }
   refreshPickables();
+  rebuildGovernment();
   syncCountryUI();
   render();
   if (state.explain) renderExplainer(); // keep the open explainer in step with the selected countries
 }
 
 /* Explainer box: an axis end (click an axis label in 3D or a pole label under a slider) or the data notes. */
+/* Governments: a node graph (solid) between the governing parties, dashed links from outside supporters to the
+   prime minister's party, and a ring on every member. Single-party governments have no lines, hence the rings. */
+const govGroup = new THREE.Group();
+scene.add(govGroup);
+const govRings = []; // { obj, mesh }: billboard rings kept facing the camera and sized to the bubble each frame
+const GOV_COLOR = 0x3ddc97;     // governing parties (green)
+const SUPPORT_COLOR = 0xffb347; // outside supporters (amber, and dashed so colour is not the only cue)
+const edgeGeo = new THREE.CylinderGeometry(1, 1, 1, 8, 1, true); // unit cylinder, scaled per edge
+const govEdgeMat = new THREE.MeshBasicMaterial({ color: GOV_COLOR, transparent: true, opacity: 0.9 });
+const supportEdgeMat = new THREE.MeshBasicMaterial({ color: SUPPORT_COLOR, transparent: true, opacity: 0.95 });
+const _yAxis = new THREE.Vector3(0, 1, 0);
+const _seg = new THREE.Vector3();
+
+function addSegment(a, b, radius, mat) {
+  _seg.subVectors(b, a);
+  const len = _seg.length();
+  if (len < 1e-6) return;
+  const m = new THREE.Mesh(edgeGeo, mat);
+  m.position.copy(a).addScaledVector(_seg, 0.5);
+  m.quaternion.setFromUnitVectors(_yAxis, _seg.clone().normalize());
+  m.scale.set(radius, len, radius);
+  govGroup.add(m);
+}
+
+function addDashedSegment(a, b, radius, mat) {
+  const total = a.distanceTo(b), dash = 0.045, gap = 0.04;
+  const dir = b.clone().sub(a).normalize();
+  for (let s = 0; s < total; s += dash + gap) {
+    addSegment(a.clone().addScaledVector(dir, s), a.clone().addScaledVector(dir, Math.min(s + dash, total)), radius, mat);
+  }
+}
+
+function addGovRing(obj, color, inner) {
+  const mesh = new THREE.Mesh(
+    new THREE.RingGeometry(inner, 1, 48),
+    new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: true, opacity: 0.95, depthWrite: false }),
+  );
+  mesh.renderOrder = 5;
+  mesh.userData.own = true; // has its own geometry/material (the edges share theirs)
+  govGroup.add(mesh);
+  govRings.push({ obj, mesh });
+}
+
+/** 'pm' | 'gov' | 'support' | null: this party's role in its country's government. */
+function govRole(obj) {
+  const g = GOVERNMENT_BY_CODE.get(obj.e.country);
+  if (!g) return null;
+  if (g.pm === obj.e.abbr) return 'pm';
+  if (g.parties.includes(obj.e.abbr)) return 'gov';
+  if (g.support.includes(obj.e.abbr)) return 'support';
+  return null;
+}
+
+function rebuildGovernment() {
+  govRings.length = 0;
+  for (const o of entityById.values()) o.labelEl.classList.remove('is-pm'); // clears every ★; re-added below
+  for (const child of [...govGroup.children]) {
+    govGroup.remove(child);
+    if (child.userData.own) { child.geometry.dispose(); child.material.dispose(); }
+  }
+  if (!state.showGov) return;
+
+  for (const code of state.slots) {
+    const g = code && GOVERNMENT_BY_CODE.get(code);
+    const objs = code && entitiesByCountry.get(code);
+    if (!g || !objs) continue;
+    const byAbbr = new Map(objs.map((o) => [o.e.abbr, o]));
+
+    // Governing parties: a minimum spanning tree by 4D distance (N-1 lines, no every-pair tangle), rings on each.
+    const members = g.parties.map((a) => byAbbr.get(a)).filter(Boolean);
+    for (const [i, j] of minimumSpanningTree(members.length, (p, q) => euclideanDistance4D(members[p].e.vec, members[q].e.vec))) {
+      addSegment(members[i].group.position, members[j].group.position, 0.007, govEdgeMat);
+    }
+    for (const o of members) addGovRing(o, GOV_COLOR, g.pm === o.e.abbr ? 0.7 : 0.84); // thicker ring = prime minister's party
+
+    // Outside supporters: thin amber ring, dashed line to the prime minister's party.
+    const pm = byAbbr.get(g.pm);
+    if (pm) pm.labelEl.classList.add('is-pm'); // ★ on the prime minister's party label, matching the legend
+    for (const a of g.support) {
+      const o = byAbbr.get(a);
+      if (!o) continue;
+      addGovRing(o, SUPPORT_COLOR, 0.92);
+      if (pm) addDashedSegment(o.group.position, pm.group.position, 0.0045, supportEdgeMat);
+    }
+  }
+}
+
+/** HUD panel: for each selected country, who governs (PM party starred), who supports from outside, and how fresh the data is. */
+function renderGovSummary() {
+  $('gov-details').hidden = !state.showGov;
+  if (!state.showGov) return;
+  const codes = state.slots.filter(Boolean);
+  const box = $('gov-summary');
+  if (!codes.length) { box.replaceChildren(el('p', 'hint-small', t('gov.pick'))); return; }
+
+  box.replaceChildren(...codes.map((code) => {
+    const c = COUNTRY_BY_CODE.get(code);
+    const g = GOVERNMENT_BY_CODE.get(code);
+    const block = el('div', 'ex-country');
+    const head = el('div', 'ex-head');
+    head.append(flagImg(code), el('span', null, `${SLOT_GLYPH[state.slots.indexOf(code)]} ${countryName(c)}`));
+    if (g.status === 'caretaker') head.appendChild(el('span', 'badge', t('gov.status.caretaker')));
+    block.appendChild(head);
+
+    const chip = (abbr, cls) => {
+      const party = c.parties.find((p) => p.abbr === abbr);
+      const s = el('span', `chip ${cls}`, abbr + (g.pm === abbr ? ' ★' : ''));
+      s.style.setProperty('--c', party.partyColor);
+      s.title = party.name;
+      return s;
+    };
+    const line = (labelKey, abbrs, cls) => {
+      const row = el('div', 'gov-line');
+      row.appendChild(el('span', 'lab', t(labelKey)));
+      abbrs.forEach((a) => row.appendChild(chip(a, cls)));
+      return row;
+    };
+    block.appendChild(line('gov.members', g.parties, 'gov'));
+    if (g.support.length) block.appendChild(line('gov.support', g.support, 'sup'));
+    if (g.unlisted.length) block.appendChild(el('p', 'gov-note', t('gov.unlisted', { list: g.unlisted.join(', ') })));
+    if (g.note) block.appendChild(el('p', 'gov-note', g.note[getLang()] ?? g.note.en));
+    block.appendChild(el('p', 'gov-note', t('gov.verified', { date: monthLabel(g.verified) })));
+    return block;
+  }));
+}
+
+$('gov-toggle').addEventListener('change', (e) => {
+  state.showGov = e.target.checked;
+  rebuildGovernment();
+  render();
+});
+
 const explainer = $('explainer');
 let explainerTrigger = null;
 
@@ -606,12 +742,18 @@ $('slice-toggle').addEventListener('change', (e) => { state.slice = e.target.che
 const partiesDetails = $('all-parties');
 partiesDetails.addEventListener('toggle', () => { if (partiesDetails.open) renderPartyTable($('party-table'), activeObjs().map((o) => o.e), state.you); });
 
-$('hud-toggle').addEventListener('click', () => {
-  const collapsed = hud.classList.toggle('collapsed');
-  $('hud-toggle').setAttribute('aria-expanded', String(!collapsed));
-  trAttr($('hud-toggle'), 'aria-label', collapsed ? 'hud.expand' : 'hud.collapse');
-});
-if (!desktopMQ.matches && window.innerHeight < 600) $('hud-toggle').click(); // short phones start collapsed
+// Minimise / maximise the panel: the header (title + language) stays visible, only the settings body hides.
+function setHudCollapsed(collapsed) {
+  hud.classList.toggle('collapsed', collapsed);
+  const btn = $('hud-toggle');
+  btn.setAttribute('aria-expanded', String(!collapsed));
+  const key = collapsed ? 'hud.expand' : 'hud.collapse';
+  trAttr(btn, 'aria-label', key);
+  trAttr(btn, 'title', key);
+}
+$('hud-toggle').addEventListener('click', () => setHudCollapsed(!hud.classList.contains('collapsed')));
+$('hud-handle').addEventListener('click', () => $('hud-toggle').click()); // phones: tap the grab bar too
+if (!desktopMQ.matches && window.innerHeight < 600) setHudCollapsed(true); // short phones start minimised
 
 /* ----------------------------------------------------------------- render */
 function leaning(ax, v) {
@@ -677,6 +819,8 @@ function render() {
   const approx = state.slots.filter(Boolean).map((c) => COUNTRY_BY_CODE.get(c)).filter((c) => c.election.approx).map((c) => countryName(c));
   $('seat-note').textContent = t('size.note') + (approx.length ? t('size.approx', { names: approx.join(', ') }) : '');
 
+  renderGovSummary();
+
   if (partiesDetails.open) renderPartyTable($('party-table'), active.map((o) => o.e), you);
 }
 
@@ -727,7 +871,7 @@ function updateTooltip() {
 
   const vec = obj.isYou ? state.you : obj.e.vec;
   const m = matchById.get(id);
-  const key = getLang() + id + vec.join();
+  const key = getLang() + state.showGov + id + vec.join();
   if (key !== ttKey) {
     ttKey = key;
     const parts = [el('div', 'tt-name', obj.isYou ? t('you.label') : `${obj.e.name} (${obj.e.abbr})`),
@@ -741,6 +885,8 @@ function updateTooltip() {
         election: electionLabel(COUNTRY_BY_CODE.get(obj.e.country).election),
       })));
     }
+    const role = state.showGov && !obj.isYou ? govRole(obj) : null;
+    if (role) parts.push(el('div', 'tt-extra', t(`gov.role.${role}`)));
     if (m) parts.push(el('div', 'tt-extra', t('tooltip.match', { pct: m.matchPct.toFixed(0), d: m.distance.toFixed(2) })));
     tooltip.replaceChildren(...parts);
   }
@@ -939,6 +1085,13 @@ function frame(now) {
     selRing.visible = false;
   }
 
+  // Government rings: face the camera and follow the bubble size (which the size sliders and seat mode change).
+  for (const { obj, mesh } of govRings) {
+    mesh.position.copy(obj.group.position);
+    mesh.quaternion.copy(camera.quaternion);
+    mesh.scale.setScalar((obj.slot === 1 ? 0.078 : 0.055) * obj.sphere.scale.x * 1.75 + 0.014);
+  }
+
   updateTooltip();
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);
@@ -962,6 +1115,7 @@ el3d.addEventListener('webglcontextrestored', () => {
 state.showYou = $('you-toggle').checked;
 state.slice = $('slice-toggle').checked;
 state.bySeats = $('seat-toggle').checked;
+state.showGov = $('gov-toggle').checked;
 youObj.group.visible = state.showYou; // before applyCountrySelection, so a hidden "You" is not pickable
 
 layout();

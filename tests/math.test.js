@@ -5,6 +5,8 @@ import {
 import { POLES, DATA_NOTES, getPole, getDataNotes, poleKey, isCustomAxis, strengthWord, countryLean } from '../explain.js';
 import { STRINGS, LANGS, DEFAULT_LANG, t, useLang, countryName, electionLabel } from '../i18n.js';
 import { COUNTRIES, COUNTRY_BY_CODE, COUNTRY_GROUPS } from '../countries.js';
+import { GOVERNMENTS, GOVERNMENT_BY_CODE } from '../governments.js';
+import { minimumSpanningTree } from '../math.js';
 
 const PARTIES = COUNTRY_BY_CODE.get('SE').parties;
 
@@ -192,6 +194,46 @@ test('i18n: every country has a Swedish name and a structured election', () => {
     assert(/^\d{4}-(0[1-9]|1[0-2])$/.test(c.election.date) && c.election.chamber && c.election.total > 0, `bad election for ${c.code}`);
   }
   assert(COUNTRIES.filter((c) => countryName(c) === c.name).length <= 6, 'too many untranslated country names');
+});
+
+test('mst: n-1 edges linking the nearest neighbours (points on a line)', () => {
+  const xs = [0, 1, 3, 7];
+  const edges = minimumSpanningTree(xs.length, (i, j) => Math.abs(xs[i] - xs[j]));
+  assert(edges.length === 3, 'expected 3 edges');
+  const key = (e) => [...e].sort((a, b) => a - b).join('-');
+  assert(edges.map(key).sort().join() === '0-1,1-2,2-3', `got ${edges.map(key)}`);
+});
+test('mst: no edges for fewer than two items; connected for any size', () => {
+  assert(minimumSpanningTree(0, () => 1).length === 0 && minimumSpanningTree(1, () => 1).length === 0);
+  const n = 6, pts = [[0, 0], [5, 0], [5, 5], [0, 5], [2, 2], [9, 9]];
+  const edges = minimumSpanningTree(n, (i, j) => Math.hypot(pts[i][0] - pts[j][0], pts[i][1] - pts[j][1]));
+  assert(edges.length === n - 1);
+  const seen = new Set([0]);
+  for (let k = 0; k < n; k++) for (const [a, b] of edges) { if (seen.has(a)) seen.add(b); if (seen.has(b)) seen.add(a); }
+  assert(seen.size === n, 'tree is not connected');
+});
+
+test('governments: every country has one, with parties that exist on the chart', () => {
+  for (const code of Object.keys(GOVERNMENTS)) assert(COUNTRY_BY_CODE.has(code), `unknown country ${code}`);
+  for (const c of COUNTRIES) {
+    const g = GOVERNMENT_BY_CODE.get(c.code);
+    assert(g, `no government for ${c.code}`);
+    const abbrs = new Set(c.parties.map((p) => p.abbr));
+    for (const a of [...g.parties, ...g.support]) assert(abbrs.has(a), `${c.code}: unknown party ${a}`);
+    assert(g.parties.length >= 1, `${c.code}: empty government`);
+    assert(g.pm === null || g.parties.includes(g.pm), `${c.code}: pm ${g.pm} is not in the government`);
+    assert(!g.parties.some((a) => g.support.includes(a)), `${c.code}: a party is both in government and outside support`);
+    assert(/^\d{4}-(0[1-9]|1[0-2])$/.test(g.verified), `${c.code}: bad verified date`);
+    assert(g.status === null || g.status === 'caretaker', `${c.code}: unknown status`);
+    if (g.note) assert(g.note.en && g.note.sv, `${c.code}: note needs both languages`);
+  }
+});
+test('governments: known cases (Sweden caretaker with SD support, Slovenia with Resni.ca, single-party Malta)', () => {
+  const se = GOVERNMENT_BY_CODE.get('SE');
+  assert(se.status === 'caretaker' && se.parties.join() === 'M,KD,L' && se.support.join() === 'SD' && se.pm === 'M');
+  assert(GOVERNMENT_BY_CODE.get('SI').support.join() === 'RES');
+  assert(GOVERNMENT_BY_CODE.get('MT').parties.join() === 'PL');
+  assert(GOVERNMENT_BY_CODE.get('CY').pm === null);
 });
 
 const failed = results.filter((r) => !r.ok);

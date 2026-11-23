@@ -1,0 +1,7 @@
+# Local dev server: `caddy run` from this folder, then open http://localhost:8080/
+# no-cache makes the browser revalidate every file, so a reload never mixes old and new modules.
+:8080 {
+	root * .
+	header Cache-Control "no-cache"
+	file_server
+}
