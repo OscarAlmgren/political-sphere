@@ -5,15 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politisk kompass 4D</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261123a">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
+    "./app.js": "./app.js?v=20261123a",
+    "./i18n.js": "./i18n.js?v=20261123a",
+    "./countries.js": "./countries.js?v=20261123a",
+    "./governments.js": "./governments.js?v=20261123a",
+    "./explain.js": "./explain.js?v=20261123a",
+    "./data.js": "./data.js?v=20261123a",
+    "./math.js": "./math.js?v=20261123a",
+    "./table.js": "./table.js?v=20261123a"
   }
 }
 </script>
+<!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
+     cache) can never mix old and new modules after a release. When you release, bump 20261123a in the import map
+     and in the stylesheet link: sed -i '' 's/20261123a/NEW/g' index.html -->
+
 </head>
 <body>
 <noscript><p class="noscript">Den här appen kräver att JavaScript är aktiverat. / This app needs JavaScript enabled.</p></noscript>

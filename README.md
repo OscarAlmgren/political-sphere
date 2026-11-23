@@ -7,13 +7,15 @@ Interactive 3D political compass. Every party (and a movable "You" marker) is a 
 ## Run
 
 ```sh
-caddy file-server --listen :8080
+caddy run --config Caddyfile   # serves this folder on :8080 with no-cache headers
 # app:   http://localhost:8080/
 # tests: http://localhost:8080/tests.html   (title becomes PASS / FAIL)
 # no-WebGL fallback preview: http://localhost:8080/?nowebgl
 ```
 
-Any static server works, but ES modules do not load from `file://`.
+Any static server works, but ES modules do not load from `file://`. The included `Caddyfile` sends `Cache-Control: no-cache`; without that, a browser can keep serving old copies of the JavaScript modules after a reload and the page ends up half old, half new (for example showing raw keys like `gov.title`).
+
+**Cache busting on release:** `index.html` maps every local module (and the stylesheet) to a versioned URL (`?v=…`), so a release can never mix old and new files, even behind GitHub Pages' 10-minute cache. When you change any `.js` or `.css` file, bump the version before releasing: `sed -i '' 's/20261123a/NEWVERSION/g' index.html` (use a new value such as `20261201a`). Add a new local module to the import map in `index.html` too.
 
 ## Countries
 
