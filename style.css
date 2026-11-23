@@ -167,6 +167,8 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: 
 
 /* Sliders */
 .slider-row { margin-bottom: 10px; }
+/* Thin separator between the axes in "Din position" (the size sliders use .slider-row too, so this is scoped to #sliders). */
+#sliders .slider-row + .slider-row { border-top: 2px solid rgba(255, 255, 255, 0.28); padding-top: 12px; }
 .slider-head { display: flex; justify-content: space-between; align-items: baseline; }
 .slider-label { font-weight: 600; }
 .slider-label .axis-key { display: inline-block; min-width: 1.4em; color: var(--accent); font-weight: 800; }

@@ -61,7 +61,7 @@ export const STRINGS = {
     'grid.xz.tip': 'Y = 0',
     'grid.yz.tip': 'X = 0',
     'grid.floor': 'Golv',
-    'grid.floor.tip': 'Y = −1, där falllinjerna landar',
+    'grid.floor.tip': 'Y = −1',
     'grid.hideAll': 'Dölj alla rutnät',
     'grid.showAll': 'Visa alla rutnät',
 
@@ -212,7 +212,7 @@ export const STRINGS = {
     'grid.xz.tip': 'Y = 0',
     'grid.yz.tip': 'X = 0',
     'grid.floor': 'Floor',
-    'grid.floor.tip': 'Y = −1, where drop-lines land',
+    'grid.floor.tip': 'Y = −1',
     'grid.hideAll': 'Hide all grids',
     'grid.showAll': 'Show all grids',
 
