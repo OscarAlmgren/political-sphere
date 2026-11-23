@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Politisk kompass 4D</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<noscript><p class="noscript">Den här appen kräver att JavaScript är aktiverat. / This app needs JavaScript enabled.</p></noscript>
+
+<!-- Text below is Swedish (the default language); data-i18n* attributes switch it via i18n.js. -->
+<div id="app">
+  <main id="stage" aria-label="Interaktiv politisk 3D-kompass. En tabell över alla partier finns i sidopanelen." data-i18n-aria-label="stage.aria">
+    <section id="explainer" role="dialog" aria-labelledby="explainer-title" hidden>
+      <header class="ex-top">
+        <div>
+          <h2 id="explainer-title"></h2>
+          <p id="explainer-aka" class="sub"></p>
+        </div>
+        <button id="explainer-close" type="button" aria-label="Stäng förklaringen" data-i18n-aria-label="explain.close">×</button>
+      </header>
+      <div id="explainer-body"></div>
+    </section>
+    <div id="tooltip" hidden></div>
+    <div id="notice" role="alert" hidden></div>
+  </main>
+
+  <aside id="hud" aria-label="Kontroller och resultat" data-i18n-aria-label="hud.aria">
+    <header class="hud-head">
+      <div>
+        <h1 data-i18n="app.title">Politisk kompass 4D</h1>
+        <p class="sub" data-i18n="app.subtitle">Politiska partier som vektorer i ℝ⁴</p>
+      </div>
+      <div class="head-actions">
+        <button id="lang-btn" class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Språk" data-i18n-aria-label="lang.label"><span class="code">SE</span></button>
+        <button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-body" aria-label="Fäll ihop panelen" data-i18n-aria-label="hud.collapse"></button>
+      </div>
+    </header>
+
+    <div id="hud-body">
+      <section>
+        <h2><span data-i18n="countries.title">Länder</span> <span class="dim-note" data-i18n="countries.hint">välj upp till 2</span></h2>
+        <div id="country-slots" class="slots"></div>
+        <details id="country-picker" open>
+          <summary data-i18n="countries.choose">Välj länder</summary>
+          <div id="country-list"></div>
+        </details>
+      </section>
+
+      <section>
+        <details id="all-parties">
+          <summary data-i18n="parties.table">Alla partier (tabell)</summary>
+          <div id="party-table"></div>
+        </details>
+        <button id="data-info" class="btn" type="button" data-i18n="data.button">ⓘ Varifrån kommer siffrorna?</button>
+      </section>
+
+      <section>
+        <h2 data-i18n="you.title">Din position</h2>
+        <label class="check you-check">
+          <input type="checkbox" id="you-toggle" autocomplete="off">
+          <span data-i18n="you.show">Visa markören ”Du”</span>
+        </label>
+        <p id="you-hint" class="hint" data-i18n="you.hint" hidden>Markören är dold. Träffar och skivläge använder fortfarande värdena nedan.</p>
+        <div id="sliders"></div>
+        <button id="reset" type="button" data-i18n="you.reset">Återställ till origo</button>
+      </section>
+
+      <section>
+        <h2 data-i18n="view.title">Vy</h2>
+        <div id="view-buttons" class="btn-grid"></div>
+      </section>
+
+      <section>
+        <h2 data-i18n="grid.title">Rutnät</h2>
+        <div id="grid-toggles" class="check-grid"></div>
+      </section>
+
+      <section>
+        <h2 data-i18n="size.title">Bubbelstorlek</h2>
+        <div id="display-controls"></div>
+        <label class="check seat-check">
+          <input type="checkbox" id="seat-toggle" autocomplete="off">
+          <span data-i18n="size.seats">Anpassa efter valresultat</span>
+        </label>
+        <p id="seat-note" class="hint-small"></p>
+      </section>
+
+      <section>
+        <h2 data-i18n="legend.title">W-axelns färg</h2>
+        <div id="w-legend" class="legend-bar" role="img" aria-label="Färgskala från blått (stegvis) via violett till rödorange (radikal)" data-i18n-aria-label="legend.aria"></div>
+        <div class="legend-labels"><span data-i18n="legend.neg">−1 Stegvis</span><span>0</span><span data-i18n="legend.pos">+1 Radikal</span></div>
+      </section>
+
+      <section>
+        <label class="switch">
+          <input type="checkbox" id="slice-toggle" role="switch" autocomplete="off">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text"><span data-i18n="slice.title">W-skivläge</span><small id="slice-count">Markera enheter inom ±0.4 från ditt W</small></span>
+        </label>
+      </section>
+
+      <section>
+        <h2><span data-i18n="matches.title">Närmaste träffar</span> <span class="dim-note" data-i18n="matches.in">i ℝ⁴</span></h2>
+        <p id="cos-hint" class="hint" data-i18n="matches.cosHint" hidden>Cosinuslikhet är odefinierad i origo. Flytta ett reglage så att ”Du” får en riktning.</p>
+        <div id="leaderboard" aria-live="polite"></div>
+      </section>
+
+      <p class="foot" data-i18n="foot">Matchning % = (1 − d/4) × 100, där 4 är det största möjliga 4D-avståndet. Cosinus jämför bara riktning. Land A ritas som sfärer (●), land B som diamanter (◆). Partiernas positioner är grova, illustrativa uppskattningar, inte mätningar. Se ”Varifrån kommer siffrorna?” ovan.</p>
+    </div>
+  </aside>
+</div>
+
+<section id="fallback" hidden>
+  <h1 data-i18n="fallback.title">Politisk kompass 4D</h1>
+  <p id="fallback-reason" class="fallback-reason"></p>
+  <p data-i18n="fallback.intro">3D-vyn kräver WebGL2. Här är partivektorerna i stället (X ekonomi, Y GAL+/TAN−, Z antietablissemang+, W radikal+):</p>
+  <p><label><span data-i18n="fallback.country">Land</span> <select id="fallback-country"></select></label></p>
+  <div id="fallback-table"></div>
+</section>
+
+<script type="module">
+  import { useLang, initialLang, retranslate, onLangChange, t, countryName } from './i18n.js';
+
+  // Language first (Swedish unless ?lang=en), before the heavy 3D module loads, so there is no flash of the wrong language.
+  useLang(initialLang());
+  retranslate();
+
+  const $ = (id) => document.getElementById(id);
+
+  async function showFallback(reasonKey, args) {
+    $('app').hidden = true;
+    $('fallback').hidden = false;
+    $('fallback-reason').textContent = t(reasonKey, args);
+    try {
+      const [{ COUNTRIES, DEFAULT_COUNTRY }, { renderPartyTable }] = await Promise.all([import('./countries.js'), import('./table.js')]);
+      const select = $('fallback-country');
+      for (const c of COUNTRIES) select.add(new Option(countryName(c), c.code));
+      select.value = DEFAULT_COUNTRY;
+      const show = () => renderPartyTable($('fallback-table'), COUNTRIES.find((c) => c.code === select.value).parties, null);
+      select.addEventListener('change', show);
+      show();
+    } catch (e) {
+      console.error(e);
+      $('fallback-table').textContent = t('fallback.loadFail');
+    }
+  }
+
+  function hasWebGL2() {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      if (!gl) return false;
+      const ext = gl.getExtension('WEBGL_lose_context');
+      if (ext) ext.loseContext();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  if (new URLSearchParams(location.search).has('nowebgl') || !hasWebGL2()) {
+    showFallback('fallback.reasonWebgl');
+  } else {
+    import('./app.js').catch((e) => {
+      console.error(e);
+      showFallback('fallback.reasonLoad', { err: (e && e.message) || String(e) });
+    });
+  }
+</script>
+</body>
+</html>
