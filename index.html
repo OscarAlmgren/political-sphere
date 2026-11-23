@@ -84,6 +84,11 @@
           <input type="checkbox" id="gov-toggle" autocomplete="off">
           <span data-i18n="gov.show">Visa regeringspartier</span>
         </label>
+        <label class="check seat-check">
+          <input type="checkbox" id="seat-toggle" autocomplete="off">
+          <span data-i18n="size.seats">Anpassa efter valresultat</span>
+        </label>
+        <p id="seat-note" class="hint-small"></p>
         <div id="gov-details" hidden>
           <ul class="gov-legend">
             <li><i class="sw sw-gov"></i><span data-i18n="gov.legend.gov">I regeringen</span></li>
@@ -119,11 +124,6 @@
       <section>
         <h2 data-i18n="size.title">Bubbelstorlek</h2>
         <div id="display-controls"></div>
-        <label class="check seat-check">
-          <input type="checkbox" id="seat-toggle" autocomplete="off">
-          <span data-i18n="size.seats">Anpassa efter valresultat</span>
-        </label>
-        <p id="seat-note" class="hint-small"></p>
       </section>
 
       <section>
