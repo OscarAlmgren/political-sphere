@@ -819,7 +819,22 @@ function pick(clientX, clientY) {
   ndc.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
   const hit = raycaster.intersectObjects(pickables, false)[0];
-  return hit ? hit.object.userData.id : null;
+  return hit ? hit.object.userData.id : pickLabel(clientX, clientY);
+}
+
+/** Fallback when no bubble is under the pointer: the party whose label is. The label layer ignores pointer events
+ *  (so orbiting still works over it), hence the hit test against each visible label's on-screen box. If labels
+ *  overlap, the one nearest the camera wins. */
+function pickLabel(clientX, clientY) {
+  let id = null, best = Infinity;
+  for (const o of entityById.values()) {
+    if (!o.group.visible) continue;
+    const r = o.labelEl.getBoundingClientRect();
+    if (!r.width || clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) continue; // no width: label is hidden
+    const d = o.group.position.distanceToSquared(camera.position);
+    if (d < best) { best = d; id = o.e.id; }
+  }
+  return id;
 }
 
 el3d.addEventListener('pointermove', (ev) => {
