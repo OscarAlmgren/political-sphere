@@ -62,6 +62,7 @@ controls.maxDistance = 14;
 reduceMotionMQ.addEventListener('change', () => { controls.enableDamping = !reduceMotionMQ.matches; });
 
 /* ------------------------------------------------------------ space / axes */
+const axisLabels = []; // { axis, div }: end-of-axis labels, faded out when the camera looks straight along their axis
 const gridPlanes = {}; // box | xy | xz | yz | floor -> object3D, toggled from the HUD
 function buildSpace() {
   const g = new THREE.Group();
@@ -87,7 +88,7 @@ function buildSpace() {
   const gXZ = grid(0.16);                         // y = 0 (horizontal)
   const gXY = grid(0.16); gXY.rotation.x = Math.PI / 2; // z = 0
   const gYZ = grid(0.16); gYZ.rotation.z = Math.PI / 2; // x = 0
-  const floor = grid(0.26); floor.position.y = -1;      // Y = -1 floor where drop-lines land
+  const floor = grid(0.26); floor.position.y = -1;      // Y = -1 floor
   g.add(gXZ, gXY, gYZ, floor);
   Object.assign(gridPlanes, { box: outerBox, xy: gXY, xz: gXZ, yz: gYZ, floor });
   // Default view: only the outer box. The grid planes are opt-in from the HUD.
@@ -111,6 +112,7 @@ function buildSpace() {
         el('span', 'k', (sign < 0 ? '−' : '+') + ax.key.toUpperCase()),
         tr(el('span', 't'), `axis.${ax.key}.${sign < 0 ? 'neg' : 'pos'}`),
       );
+      axisLabels.push({ axis: i, div, shown: 1 });
       const obj = new CSS2DObject(div);
       const p = [0, 0, 0];
       p[i] = sign * 1.14;
@@ -126,7 +128,6 @@ buildSpace();
 const sphereGeo = new THREE.SphereGeometry(0.055, 32, 20);
 const diamondGeo = new THREE.OctahedronGeometry(0.078); // country B's marker shape
 const hitGeo = new THREE.SphereGeometry(0.13, 12, 8); // generous touch target
-const dotGeo = new THREE.CircleGeometry(0.03, 20).rotateX(-Math.PI / 2);
 const ringGeo = new THREE.RingGeometry(0.085, 0.1, 48);
 const pickables = []; // hit meshes of currently visible entities (rebuilt by refreshPickables)
 
@@ -135,15 +136,6 @@ function createEntity(e, isYou = false) {
 
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.05, transparent: true, emissiveIntensity: 0.3 });
   const sphere = new THREE.Mesh(sphereGeo, mat);
-
-  const lineGeo = new THREE.BufferGeometry();
-  lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
-  const lineMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.6 });
-  const line = new THREE.Line(lineGeo, lineMat);
-  line.frustumCulled = false; // vertices are rewritten on update; the cached bounding sphere would go stale
-
-  const dotMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.6, depthWrite: false });
-  const dot = new THREE.Mesh(dotGeo, dotMat);
 
   const hit = new THREE.Mesh(hitGeo, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
   hit.userData.id = e.id;
@@ -155,7 +147,7 @@ function createEntity(e, isYou = false) {
   if (!isYou) labelEl.appendChild(el('span', 'pm-star', '★')); // shown only for a prime minister's party while governments are on
   const label = new CSS2DObject(labelEl);
 
-  group.add(line, dot, sphere, hit, label);
+  group.add(sphere, hit, label);
 
   let ring = null;
   if (isYou) {
@@ -163,7 +155,7 @@ function createEntity(e, isYou = false) {
     group.add(ring);
   }
   scene.add(group);
-  return { e, isYou, slot: 0, group, sphere, mat, line, lineMat, dot, dotMat, hit, labelEl, label, ring };
+  return { e, isYou, slot: 0, group, sphere, mat, hit, labelEl, label, ring };
 }
 
 /** Slot A parties are spheres, slot B parties are diamonds (colour/size are reserved for W). */
@@ -179,27 +171,16 @@ function updateEntity(obj, vec) {
   obj.group.position.set(x, y, z);
   obj.mat.color.copy(col);
   obj.mat.emissive.copy(col);
-  obj.lineMat.color.copy(col);
-  obj.dotMat.color.copy(col);
   // Party size: W-based by default, or seat share of the latest election. "You" always uses the W-based size.
   const base = !obj.isYou && state.bySeats ? seatScale(obj.e.seats, obj.e.total) : wToScale(w);
   const s = base * (obj.isYou ? 1.3 : 1) * (obj.isYou ? state.size.you : state.size.party);
   obj.sphere.scale.setScalar(s);
-  obj.dot.scale.setScalar(Math.max(1, s));
   obj.hit.scale.setScalar(Math.max(1, (0.055 * s * 1.2) / 0.13)); // keep the pick target at least as big as the bubble
-  // Drop-line to the Y = -1 floor (group-local coordinates).
-  const pos = obj.line.geometry.attributes.position;
-  pos.setXYZ(0, 0, 0, 0);
-  pos.setXYZ(1, 0, -1 - y, 0);
-  pos.needsUpdate = true;
-  obj.dot.position.set(0, -1 - y + 0.004, 0);
   obj.label.position.set(0, 0.12 * s + 0.03, 0);
 }
 
 function setDim(obj, dim) {
   obj.mat.opacity = dim ? 0.18 : 1;
-  obj.lineMat.opacity = dim ? 0.07 : 0.6;
-  obj.dotMat.opacity = dim ? 0.07 : 0.6;
   obj.labelEl.classList.toggle('dim', dim);
 }
 
@@ -1050,6 +1031,22 @@ onLangChange(() => {
 
 /* --------------------------------------------------------------- main loop */
 const _off = new THREE.Vector3();
+
+/** In a 2D-style view (camera looking straight along an axis) that axis's two end labels would pile up at the
+ *  centre of the screen. Fade them out when the view is within ~1.5° of the axis (so near-perfect alignment counts
+ *  too) and back in as the camera moves away, fully visible again beyond ~10°. */
+const AXIS_FADE_HIDE = THREE.MathUtils.degToRad(1.5), AXIS_FADE_SHOW = THREE.MathUtils.degToRad(10);
+function fadeEndAxisLabels() {
+  _off.copy(camera.position).sub(controls.target).normalize();
+  for (const a of axisLabels) {
+    const angle = Math.acos(Math.min(1, Math.abs(_off.getComponent(a.axis)))); // angle between view direction and the axis line
+    const k = THREE.MathUtils.smoothstep(angle, AXIS_FADE_HIDE, AXIS_FADE_SHOW);
+    if (k === a.shown) continue; // smoothstep is exactly 0 or 1 outside the fade band, so this skips idle frames
+    a.shown = k;
+    a.div.style.opacity = k;
+    a.div.style.visibility = k < 0.02 ? 'hidden' : ''; // hidden labels can't be clicked or tabbed to
+  }
+}
 function frame(now) {
   stepTween(now);
   controls.update();
@@ -1060,6 +1057,8 @@ function frame(now) {
     _off.copy(camera.position).sub(controls.target).normalize();
     if (_off.angleTo(view.dir) > 0.03) setActiveView(null);
   }
+
+  fadeEndAxisLabels();
 
   if (hoverDirty && lastPtr) {
     hoverDirty = false;
