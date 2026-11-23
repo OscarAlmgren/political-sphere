@@ -50,6 +50,32 @@ export function getClosestMatches(userVec, entities) {
     .sort((p, q) => p.distance - q.distance);
 }
 
+/**
+ * Minimum spanning tree (Prim's algorithm) over n items: returns n - 1 edges as [i, j] index pairs, linking every
+ * item to the tree through its cheapest connection. `dist(i, j)` is the edge weight. Used to draw a tidy node graph
+ * between the parties of a government (a tree, not every-pair spaghetti).
+ */
+export function minimumSpanningTree(n, dist) {
+  if (n < 2) return [];
+  const inTree = new Array(n).fill(false);
+  const best = new Array(n).fill(Infinity);
+  const from = new Array(n).fill(-1);
+  best[0] = 0;
+  const edges = [];
+  for (let k = 0; k < n; k++) {
+    let u = -1;
+    for (let i = 0; i < n; i++) if (!inTree[i] && (u === -1 || best[i] < best[u])) u = i;
+    inTree[u] = true;
+    if (from[u] >= 0) edges.push([from[u], u]);
+    for (let v = 0; v < n; v++) {
+      if (inTree[v]) continue;
+      const d = dist(u, v);
+      if (d < best[v]) { best[v] = d; from[v] = u; }
+    }
+  }
+  return edges;
+}
+
 export function clamp(v, lo = -1, hi = 1) {
   return Math.max(lo, Math.min(hi, v));
 }

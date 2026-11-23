@@ -155,6 +155,18 @@ export const DATA_NOTES = {
         ],
       },
       {
+        id: 'governments',
+        heading: 'Governments',
+        paragraphs: [
+          'Governing parties and outside supporters were gathered in November 2026 from news agencies, Wikipedia and government or parliament sites. Each country shows when it was last checked; some are older than others, and a few (for example France) were not re-checked recently.',
+        ],
+        bullets: [
+          '“Supports from outside” means a party backs the government without holding cabinet posts, for example through a confidence-and-supply, budget or legislative agreement. One-off or informal votes are not counted.',
+          'Caretaker governments (where no new government has been approved yet) are flagged. Governing parties that are not on the chart are listed in text but not drawn.',
+          'The lines are a visual aid: solid lines form a tree linking the governing parties by closeness in the four dimensions, and dashed lines run from outside supporters to the prime minister’s party. They do not show who negotiated with whom.',
+        ],
+      },
+      {
         id: 'trust',
         heading: 'How much to trust it',
         paragraphs: [
@@ -203,6 +215,18 @@ export const DATA_NOTES = {
           'Ett parlaments mandatviktade läge på en axel = Σ(mandat × partiets värde) ÷ Σ(mandat), över de listade partier som har mandat. Ej listade småpartier lämnas utanför.',
           'Matchning % = (1 − d ÷ 4) × 100, där d är det raka (euklidiska) avståndet mellan din punkt och ett parti i alla fyra dimensioner, och 4 är största möjliga avstånd. Cosinuslikhet jämför bara riktning och är odefinierad i origo.',
           'Bubbelstorleken under ”Anpassa efter valresultat” bygger på mandatandel: ytan växer i proportion till andelen mandat.',
+        ],
+      },
+      {
+        id: 'governments',
+        heading: 'Regeringar',
+        paragraphs: [
+          'Regeringspartier och stödpartier utifrån har samlats in i november 2026 från nyhetsbyråer, Wikipedia och regerings- eller parlamentssajter. För varje land visas när uppgiften senast kontrollerades; vissa är äldre än andra, och några (till exempel Frankrike) har inte kontrollerats på sistone.',
+        ],
+        bullets: [
+          '”Stöd utifrån” betyder att ett parti stödjer regeringen utan att ha ministerposter, till exempel genom ett förtroende-, budget- eller sakpolitiskt avtal. Enstaka eller informella omröstningar räknas inte.',
+          'Övergångsregeringar (där ingen ny regering ännu godkänts) markeras. Regeringspartier som inte finns på diagrammet nämns i text men ritas inte.',
+          'Linjerna är ett visuellt hjälpmedel: heldragna linjer bildar ett träd som binder ihop regeringspartierna efter närhet i de fyra dimensionerna, och streckade linjer går från stödpartier utifrån till statsministerns parti. De visar inte vem som förhandlat med vem.',
         ],
       },
       {

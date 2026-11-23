@@ -25,6 +25,8 @@ Any static server works, but ES modules do not load from `file://`.
 
 **Grid lines:** the outer box and each grid plane (X–Y, X–Z, Y–Z, floor) have their own checkbox. On load only the outer box is shown; the three axes through the origin are always visible.
 
+**Governments:** the "Show governing parties" toggle draws each selected country's government. Governing parties are linked by solid green lines (a minimum spanning tree by 4D closeness, so N−1 lines instead of every pair) and ringed in green; the prime minister's party has a thicker ring and a ★ in the list. Parties that back the government from outside without cabinet posts (confidence-and-supply, budget or legislative agreements) get an amber ring and dashed lines to the prime minister's party. The panel lists the members, outside supporters, parties not on the chart, caretaker status and when the country was last checked. Data lives in `governments.js`; formation can lag, so check the "as of" date. Lines show closeness, not who negotiated with whom.
+
 **Data transparency:** the "Where do these numbers come from?" button (under the countries) opens a box explaining the method: party X/Y/Z/W values are hand-assigned estimates made with AI assistance (not imported from a survey; only the X and Y scale definitions follow CHES), seat counts come from the latest national election, and how seat-weighted lean and match % are calculated. The text lives in `explain.js` (`DATA_NOTES`).
 
 **Languages:** the UI is in Swedish by default, with English available from the dropdown in the panel header (it shows the country code and flag: SE and GB). `?lang=en` opens the page in English. Strings live in `i18n.js` (`STRINGS`), the longer axis and data explanations in `explain.js`. Static markup uses `data-i18n` attributes; tests check that Swedish and English have identical keys and placeholders. To add a language, add an entry to `LANGS` and `STRINGS` (plus `COUNTRY_NAMES_SV`-style country names and the pole/data-note text). Party names, abbreviations and election chamber names such as Bundestag or Sejm are left in their original form.
@@ -51,6 +53,7 @@ Party positions are illustrative estimates. X and Y loosely follow Chapel Hill E
 - `math.js`: pure 4D math and W→colour/scale mapping (no DOM, no Three.js)
 - `data.js`: axis metadata, the "You" marker, slice radius, country limit
 - `countries.js`: all countries, their party vectors and latest-election seats
+- `governments.js`: current governments (members, prime minister's party, outside supporters, caretaker status, last-checked month)
 - `explain.js`: axis-pole explanations, data notes (sv/en) and the per-country lean calculation
 - `i18n.js`: translations (sv/en), language list, country names and election-label formatting
 - `table.js`: DOM helpers and the parties table (also used by the fallback)
@@ -93,6 +96,7 @@ country('SE', 'Sweden', 'nordic', { chamber: 'Riksdag', date: '2026-09', total: 
 - **Seat counts:** cite an official source (the national election authority or parliament, otherwise a reputable news agency) in the pull request. Seats are for the latest national election of the main chamber. Listed seats may not exceed `total` (the tests check this). Use `approx: 'group' | 'composition' | 'notfinal'` in the election object when a figure is not exact.
 - **Party positions (X, Y, Z, W):** these are subjective estimates, not measurements (see "Where do these numbers come from?" in the app). If you want to change one, explain your reasoning and what it is based on, for example the party programme, the Chapel Hill Expert Survey or a published analysis. Values range from −1 to +1; abbreviations must be unique within a country.
 - **New country:** add the entry (ISO 3166-1 alpha-2 code, which also selects the flag), its Swedish name in `COUNTRY_NAMES_SV` and, where there is a generic English chamber name, a Swedish one in `CHAMBERS_SV` (both in `i18n.js`), and update the country count asserted in `tests/math.test.js`.
+- **Governments:** edit the country's entry in `governments.js` (`parties`, `pm`, `support`, `unlisted`, `status`, `verified`) with a source in the pull request. `support` is only for parties that back the government from outside under an agreement, not one-off votes. A new country needs an entry here too (the tests check that every country has one and that all abbreviations exist).
 - **Coalitions and mergers:** if a list ran as one entity in the election, model it as one party.
 
 ### Translations

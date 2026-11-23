@@ -67,6 +67,23 @@
       </section>
 
       <section>
+        <h2 data-i18n="gov.title">Regering</h2>
+        <label class="check gov-check">
+          <input type="checkbox" id="gov-toggle" autocomplete="off">
+          <span data-i18n="gov.show">Visa regeringspartier</span>
+        </label>
+        <div id="gov-details" hidden>
+          <ul class="gov-legend">
+            <li><i class="sw sw-gov"></i><span data-i18n="gov.legend.gov">I regeringen</span></li>
+            <li><i class="sw sw-sup"></i><span data-i18n="gov.legend.support">Stödjer utifrån</span></li>
+            <li><span class="star">★</span><span data-i18n="gov.legend.pm">Statsministerns parti</span></li>
+          </ul>
+          <div id="gov-summary"></div>
+          <p class="hint-small" data-i18n="gov.hint">Heldragna linjer binder ihop regeringspartierna (ett träd efter närhet i ℝ⁴). Streckade linjer går från stödpartier utifrån till statsministerns parti. Linjerna visar inte vem som förhandlat med vem.</p>
+        </div>
+      </section>
+
+      <section>
         <h2 data-i18n="you.title">Din position</h2>
         <label class="check you-check">
           <input type="checkbox" id="you-toggle" autocomplete="off">

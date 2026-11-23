@@ -139,6 +139,22 @@ export const STRINGS = {
     'data.listed': '{label} · {listed} av {total} mandat finns i diagrammet ({n} partier).',
     'data.approx': 'Mandatsiffrorna för det här landet är ungefärliga.',
 
+    'gov.title': 'Regering',
+    'gov.show': 'Visa regeringspartier',
+    'gov.legend.gov': 'I regeringen',
+    'gov.legend.support': 'Stödjer utifrån',
+    'gov.legend.pm': 'Statsministerns parti',
+    'gov.pick': 'Välj ett land för att se dess regering.',
+    'gov.members': 'Regering:',
+    'gov.support': 'Stöd utifrån:',
+    'gov.unlisted': 'Inte på diagrammet: {list}',
+    'gov.verified': 'Läge {date}',
+    'gov.status.caretaker': 'Övergångsregering',
+    'gov.hint': 'Heldragna linjer binder ihop regeringspartierna (ett träd efter närhet i ℝ⁴). Streckade linjer går från stödpartier utifrån till statsministerns parti. Linjerna visar inte vem som förhandlat med vem.',
+    'gov.role.pm': 'I regeringen (statsministerns parti)',
+    'gov.role.gov': 'I regeringen',
+    'gov.role.support': 'Stödjer regeringen utifrån',
+
     'approx.group': 'ungefärligt, per partigrupp',
     'approx.composition': 'ungefärligt, kammarens sammansättning',
     'approx.notfinal': 'ungefärligt, inte slutgiltigt',
@@ -274,6 +290,22 @@ export const STRINGS = {
     'data.listed': '{label} · {listed} of {total} seats are on the chart ({n} parties).',
     'data.approx': 'Seat figures for this country are approximate.',
 
+    'gov.title': 'Government',
+    'gov.show': 'Show governing parties',
+    'gov.legend.gov': 'In government',
+    'gov.legend.support': 'Supports from outside',
+    'gov.legend.pm': 'Prime minister’s party',
+    'gov.pick': 'Select a country to see its government.',
+    'gov.members': 'Government:',
+    'gov.support': 'Outside support:',
+    'gov.unlisted': 'Not on the chart: {list}',
+    'gov.verified': 'As of {date}',
+    'gov.status.caretaker': 'Caretaker government',
+    'gov.hint': 'Solid lines connect the governing parties (a tree by closeness in ℝ⁴). Dashed lines run from outside supporters to the prime minister’s party. The lines do not show who negotiated with whom.',
+    'gov.role.pm': 'In government (prime minister’s party)',
+    'gov.role.gov': 'In government',
+    'gov.role.support': 'Supports the government from outside',
+
     'approx.group': 'approx., by parliamentary group',
     'approx.composition': 'approx., chamber composition',
     'approx.notfinal': 'approx., not final',
@@ -368,6 +400,12 @@ export function electionLabel(e) {
   const chamber = current === 'sv' ? (CHAMBERS_SV[e.chamber] ?? e.chamber) : e.chamber;
   const base = `${chamber}, ${MONTHS[current][Number(month) - 1]} ${year}`;
   return e.approx ? `${base} (${t(`approx.${e.approx}`)})` : base;
+}
+
+/** "nov 2026" / "Nov 2026" from 'YYYY-MM'. */
+export function monthLabel(ym) {
+  const [year, month] = ym.split('-');
+  return `${MONTHS[current][Number(month) - 1]} ${year}`;
 }
 
 /* ------------------------------------------------------------ DOM helpers */
