@@ -36,6 +36,7 @@
   </main>
 
   <aside id="hud" aria-label="Kontroller och resultat" data-i18n-aria-label="hud.aria">
+    <div id="hud-handle" class="hud-handle" aria-hidden="true"></div>
     <header class="hud-head">
       <div>
         <h1 data-i18n="app.title">Politisk kompass 4D</h1>
@@ -43,7 +44,7 @@
       </div>
       <div class="head-actions">
         <button id="lang-btn" class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Språk" data-i18n-aria-label="lang.label"><span class="code">SE</span></button>
-        <button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-body" aria-label="Fäll ihop panelen" data-i18n-aria-label="hud.collapse"></button>
+        <button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-body" aria-label="Minimera panelen" title="Minimera panelen" data-i18n-aria-label="hud.collapse" data-i18n-title="hud.collapse"></button>
       </div>
     </header>
 

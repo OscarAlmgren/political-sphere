@@ -139,15 +139,28 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: 
 .lang-opt[aria-selected="true"] .name { color: var(--ink); font-weight: 600; }
 .lang-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: var(--accent); }
 
+/* Minimise / maximise the panel. The header (title + language) always stays visible; only the settings body hides.
+   Shown at every screen size. A chevron on an accent-coloured button so it can't be mistaken for the language dropdown. */
 #hud-toggle {
-  display: none;
-  width: 34px; height: 34px; flex: none;
-  border-radius: 10px; border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.06); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; flex: none; padding: 0; /* 44px: comfortable thumb target */
+  border-radius: 12px; border: 2px solid var(--accent);
+  background: rgba(139, 157, 255, 0.16); color: var(--ink);
   cursor: pointer;
 }
-#hud-toggle::before { content: "▾"; font-size: 16px; display: block; }
-#hud.collapsed #hud-toggle::before { content: "▴"; }
+#hud-toggle:hover { background: rgba(139, 157, 255, 0.32); }
+#hud-toggle::before {
+  content: ""; width: 11px; height: 11px;
+  border-right: 3px solid currentColor; border-bottom: 3px solid currentColor;
+  transform: translateY(3px) rotate(-135deg); /* chevron up: on desktop the panel collapses upward */
+  transition: transform 0.2s;
+}
+#hud.collapsed #hud-toggle::before { transform: translateY(-3px) rotate(45deg); } /* chevron down: expand */
+#hud.collapsed #hud-body { display: none; }
+#hud.collapsed .hud-head { margin-bottom: 0; }
+
+/* Drag-handle style grab bar (phones only): tap it to minimise / maximise too. */
+.hud-handle { display: none; }
 
 /* Sliders */
 .slider-row { margin-bottom: 10px; }
@@ -326,11 +339,17 @@ summary { cursor: pointer; font-weight: 600; color: var(--ink-dim); }
     border-radius: 18px 18px 0 0; border-bottom: 0;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
-  #hud-toggle { display: block; }
-  #hud.collapsed #hud-body { display: none; }
+  /* Bottom sheet: it collapses downward, so the chevron points down when open and up when minimised. */
+  #hud-toggle::before { transform: translateY(-3px) rotate(45deg); }
+  #hud.collapsed #hud-toggle::before { transform: translateY(3px) rotate(-135deg); }
+  .hud-handle {
+    display: block; position: relative; width: 44px; height: 5px; margin: -6px auto 10px;
+    border-radius: 3px; background: rgba(255, 255, 255, 0.4); cursor: pointer;
+  }
+  .hud-handle::after { content: ""; position: absolute; inset: -14px -30px; } /* larger tap area than the visible bar */
   #explainer { width: calc(100% - 24px); max-height: calc(100% - 24px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .switch-track, .switch-track::after, .entity-label { transition: none; }
+  .switch-track, .switch-track::after, .entity-label, #hud-toggle::before { transition: none; }
 }

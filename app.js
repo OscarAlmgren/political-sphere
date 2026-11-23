@@ -606,12 +606,18 @@ $('slice-toggle').addEventListener('change', (e) => { state.slice = e.target.che
 const partiesDetails = $('all-parties');
 partiesDetails.addEventListener('toggle', () => { if (partiesDetails.open) renderPartyTable($('party-table'), activeObjs().map((o) => o.e), state.you); });
 
-$('hud-toggle').addEventListener('click', () => {
-  const collapsed = hud.classList.toggle('collapsed');
-  $('hud-toggle').setAttribute('aria-expanded', String(!collapsed));
-  trAttr($('hud-toggle'), 'aria-label', collapsed ? 'hud.expand' : 'hud.collapse');
-});
-if (!desktopMQ.matches && window.innerHeight < 600) $('hud-toggle').click(); // short phones start collapsed
+// Minimise / maximise the panel: the header (title + language) stays visible, only the settings body hides.
+function setHudCollapsed(collapsed) {
+  hud.classList.toggle('collapsed', collapsed);
+  const btn = $('hud-toggle');
+  btn.setAttribute('aria-expanded', String(!collapsed));
+  const key = collapsed ? 'hud.expand' : 'hud.collapse';
+  trAttr(btn, 'aria-label', key);
+  trAttr(btn, 'title', key);
+}
+$('hud-toggle').addEventListener('click', () => setHudCollapsed(!hud.classList.contains('collapsed')));
+$('hud-handle').addEventListener('click', () => $('hud-toggle').click()); // phones: tap the grab bar too
+if (!desktopMQ.matches && window.innerHeight < 600) setHudCollapsed(true); // short phones start minimised
 
 /* ----------------------------------------------------------------- render */
 function leaning(ax, v) {
