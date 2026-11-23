@@ -118,6 +118,12 @@ export const STRINGS = {
     'tooltip.match': '{pct}% matchning med dig · avstånd {d}',
     'notice.contextLost': 'Grafikkontexten förlorades. Försöker återställa…',
 
+    'compare.title': 'Jämförelse mellan länder',
+    'compare.body': 'Varje lands partier har främst placerats utifrån det egna landets politik, så de två länderna går inte att lägga exakt över varandra. Se avstånden mellan dem som en grov fingervisning, inte som exakta mått.',
+    'compare.more': 'Så togs siffrorna fram',
+    'compare.dontShow': 'Visa inte detta igen',
+    'compare.close': 'Stäng',
+
     'explain.close': 'Stäng förklaringen',
     'ex.axisLine': '{name}-axeln ({mark}) · {aka}',
     'ex.typical': 'Typiska ståndpunkter',
@@ -268,6 +274,12 @@ export const STRINGS = {
     'tooltip.seats': '{seats} of {total} seats ({pct}%) · {election}',
     'tooltip.match': '{pct}% match with you · distance {d}',
     'notice.contextLost': 'Graphics context lost. Trying to recover…',
+
+    'compare.title': 'Comparing countries',
+    'compare.body': 'Each country’s parties were placed mainly against that country’s own politics, so the two countries can’t be laid perfectly on top of each other. Read the distances between them as a rough guide, not an exact measurement.',
+    'compare.more': 'How the numbers were made',
+    'compare.dontShow': 'Don’t show this again',
+    'compare.close': 'Close',
 
     'explain.close': 'Close explanation',
     'ex.axisLine': '{name} axis ({mark}) · {aka}',

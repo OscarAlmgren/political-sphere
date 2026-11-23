@@ -408,7 +408,32 @@ function toggleCountry(code) {
     state.slots[free] = code;
   }
   applyCountrySelection();
+  if (state.slots.every(Boolean)) showCompareToast(); else hideCompareToast(); // two countries picked: warn, one left: clear
 }
+
+/* Disclaimer shown each time a second country is selected, unless the user ticked "don't show this again". */
+const compareToast = $('compare-toast');
+const compareHide = $('compare-hide');
+const HIDE_COMPARE_KEY = 'political-sphere:hide-compare-note';
+const storage = {
+  get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, // storage can be blocked (private mode)
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* the choice just lasts until reload */ } },
+  remove: (k) => { try { localStorage.removeItem(k); } catch { /* ignore */ } },
+};
+let compareMuted = storage.get(HIDE_COMPARE_KEY) === '1';
+function showCompareToast() {
+  if (compareMuted || !compareToast.hidden) return;
+  compareHide.checked = false;
+  compareToast.hidden = false;
+}
+function hideCompareToast() { compareToast.hidden = true; }
+compareHide.addEventListener('change', () => {
+  compareMuted = compareHide.checked;
+  if (compareMuted) storage.set(HIDE_COMPARE_KEY, '1'); else storage.remove(HIDE_COMPARE_KEY);
+});
+$('compare-close').addEventListener('click', hideCompareToast);
+compareToast.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') hideCompareToast(); });
+$('compare-more').addEventListener('click', (ev) => openDataExplainer(ev.currentTarget));
 
 function syncCountryUI() {
   const full = state.slots.every(Boolean);
