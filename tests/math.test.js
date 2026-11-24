@@ -169,11 +169,11 @@ test('i18n: language menu shows country code + flag for each language', () => {
 });
 test('i18n: t() fills placeholders and resolves @key arguments; missing keys fall back to the key', () => {
   useLang('en');
-  assert(t('slice.on', { n: 3, m: 8, r: 0.4 }) === '3 of 8 parties within ±0.4 of your W');
+  assert(t('slice.on', { n: 3, m: 8, r: 0.4 }) === '3 of 8 parties within ±0.4 of your pace of change');
   assert(t('slider.poleNeg', { pole: '@axis.y.neg' }) === 'TAN (−1)');
   assert(t('no.such.key') === 'no.such.key');
   useLang('sv');
-  assert(t('slice.on', { n: 3, m: 8, r: 0.4 }) === '3 av 8 partier inom ±0.4 från ditt W');
+  assert(t('slice.on', { n: 3, m: 8, r: 0.4 }) === '3 av 8 partier inom ±0.4 från din förändringstakt');
   assert(t('slider.polePos', { pole: '@axis.x.pos' }) === '(+1) Fri marknad');
 });
 test('i18n: country names and election labels follow the language', () => {

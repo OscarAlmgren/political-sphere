@@ -25,7 +25,7 @@ Any static server works, but ES modules do not load from `file://`. The included
 
 **Axis explainers:** click an axis label in the 3D view, or a pole label under a slider (the only way to reach the W axis), for a short explanation of that end of the axis. The box also lists, for each selected country, the parties furthest toward that end and the seat-weighted lean of its parliament. These examples are computed from the data, not hand-written case studies.
 
-**Grid lines:** the outer box and each grid plane (X–Y, X–Z, Y–Z, floor) have their own checkbox. On load only the outer box is shown; the three axes through the origin are always visible.
+**Grid lines:** the outer box and each grid plane (Economic × Sociocultural = X–Y, Economic × Institutional = X–Z, Sociocultural × Institutional = Y–Z) have their own checkbox. On load only the outer box is shown; the three axes through the origin are always visible.
 
 **Governments:** the "Show governing parties" toggle draws each selected country's government. Governing parties are linked by solid green lines (a minimum spanning tree by 4D closeness, so N−1 lines instead of every pair) and ringed in green; the prime minister's party has a thicker ring and a ★ in the list. Parties that back the government from outside without cabinet posts (confidence-and-supply, budget or legislative agreements) get an amber ring and dashed lines to the prime minister's party. The panel lists the members, outside supporters, parties not on the chart, caretaker status and when the country was last checked. Data lives in `governments.js`; formation can lag, so check the "as of" date. Lines show closeness, not who negotiated with whom.
 
