@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<title>Politisk kompass 4D</title>
+<title>Politiska sfären 4D</title>
 <link rel="stylesheet" href="style.css?v=20261123e">
 <script type="importmap">
 {
@@ -32,7 +32,7 @@
 
 <!-- Text below is Swedish (the default language); data-i18n* attributes switch it via i18n.js. -->
 <div id="app">
-  <main id="stage" aria-label="Interaktiv politisk 3D-kompass. En tabell över alla partier finns i sidopanelen." data-i18n-aria-label="stage.aria">
+  <main id="stage" aria-label="Interaktiv politisk 3D-sfär. En tabell över alla partier finns i sidopanelen." data-i18n-aria-label="stage.aria">
     <section id="explainer" role="dialog" aria-labelledby="explainer-title" hidden>
       <header class="ex-top">
         <div>
@@ -65,7 +65,7 @@
     <div id="hud-handle" class="hud-handle" aria-hidden="true"></div>
     <header class="hud-head">
       <div>
-        <h1 data-i18n="app.title">Politisk kompass 4D</h1>
+        <h1 data-i18n="app.title">Politiska sfären 4D</h1>
         <p class="sub" data-i18n="app.subtitle">Politiska partier som vektorer i ℝ⁴</p>
       </div>
       <div class="head-actions">
@@ -166,7 +166,7 @@
 
   <div id="welcome" hidden>
     <section id="welcome-box" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-      <h2 id="welcome-title" data-i18n="welcome.title">Välkommen till den politiska kompassen i 4D</h2>
+      <h2 id="welcome-title" data-i18n="welcome.title">Välkommen till den politiska sfären i 4D</h2>
       <p data-i18n="welcome.intro">Varje parti är en punkt i en 3D-ruta, och den fjärde dimensionen syns som färg och storlek. Rutan är interaktiv, så utforska den själv:</p>
       <ul>
         <li><b data-i18n="welcome.i1.k">Rotera och zooma</b><span data-i18n="welcome.i1.t">Dra i rutan för att vrida den. Scrolla eller nyp för att zooma.</span></li>
@@ -180,7 +180,7 @@
 </div>
 
 <section id="fallback" hidden>
-  <h1 data-i18n="fallback.title">Politisk kompass 4D</h1>
+  <h1 data-i18n="fallback.title">Politiska sfären 4D</h1>
   <p id="fallback-reason" class="fallback-reason"></p>
   <p data-i18n="fallback.intro">3D-vyn kräver WebGL2. Här är partivektorerna i stället (X ekonomi, Y GAL+/TAN−, Z antietablissemang+, W radikal+):</p>
   <p><label><span data-i18n="fallback.country">Land</span> <select id="fallback-country"></select></label></p>

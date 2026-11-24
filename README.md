@@ -1,6 +1,6 @@
-# Political Compass 4D
+# Political Sphere 4D
 
-Interactive 3D political compass. Every party (and a movable "You" marker) is a vector `[x, y, z, w]` in [-1, 1]⁴. X/Y/Z are space; W is colour (blue → violet → red-orange) and a subtle size change. No build step; Three.js loads from jsDelivr (pinned in the import map in `index.html`).
+Interactive 3D political sphere. Every party (and a movable "You" marker) is a vector `[x, y, z, w]` in [-1, 1]⁴. X/Y/Z are space; W is colour (blue → violet → red-orange) and a subtle size change. No build step; Three.js loads from jsDelivr (pinned in the import map in `index.html`).
 
 **Live site:** https://oscaralmgren.github.io/political-sphere/ (Swedish by default, `?lang=en` for English). Contributions are welcome, see [Contributing](#contributing).
 
