@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Interactive 3D "political compass" in four dimensions: every party (plus a movable "You" marker) is a vector `[x, y, z, w]` in [-1, 1]⁴. X/Y/Z are drawn as space, W as colour and a subtle size change. UI is Swedish by default (`?lang=en` for English). Plain ES modules, **no build step, no package.json, no npm dependencies**: Three.js and `flag-icons` load from jsDelivr, pinned to exact versions in the import map in `index.html`. Do not add dependencies or a build step.
+Interactive 3D "political sphere" in four dimensions: every party (plus a movable "You" marker) is a vector `[x, y, z, w]` in [-1, 1]⁴. X/Y/Z are drawn as space, W as colour and a subtle size change. UI is Swedish by default (`?lang=en` for English). Plain ES modules, **no build step, no package.json, no npm dependencies**: Three.js and `flag-icons` load from jsDelivr, pinned to exact versions in the import map in `index.html`. Do not add dependencies or a build step.
 
 ## Commands
 
