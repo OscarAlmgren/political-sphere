@@ -111,7 +111,10 @@ function buildSpace() {
       div.append(
         el('span', 'k', (sign < 0 ? '−' : '+') + ax.key.toUpperCase()),
         tr(el('span', 't'), `axis.${ax.key}.${sign < 0 ? 'neg' : 'pos'}`),
+        el('span', 'i', 'i'), // small (i) badge: hints that the label opens an explanation
       );
+      div.querySelector('.i').setAttribute('aria-hidden', 'true');
+      trAttr(div, 'title', 'slider.poleTip');
       axisLabels.push({ axis: i, div, shown: 1 });
       const obj = new CSS2DObject(div);
       const p = [0, 0, 0];
@@ -1172,6 +1175,65 @@ function closeWelcome() {
   behindWelcome.forEach((n) => { n.inert = false; });
   storage.set(WELCOME_KEY, '1');
 }
+/* How-it-works modal: opened from the link under the title. Four steps (1D line, 2D plane, 3D box, W as colour). */
+const intro = $('intro');
+const introSteps = [...intro.querySelectorAll('.intro-step')];
+let introIndex = 0;
+let introTrigger = null;
+
+// The W step's bar and dots use the same OKLab colours as the spheres and the HUD legend.
+const wgrad = $('intro-wgrad');
+for (let k = 0; k <= 10; k++) {
+  const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+  stop.setAttribute('offset', `${k * 10}%`);
+  stop.setAttribute('stop-color', css(wToColor(-1 + k * 0.2)));
+  wgrad.appendChild(stop);
+}
+intro.querySelectorAll('.wdot').forEach((d) => d.setAttribute('fill', css(wToColor(parseFloat(d.dataset.w)))));
+
+function showIntroStep(i) {
+  introIndex = Math.max(0, Math.min(introSteps.length - 1, i));
+  introSteps.forEach((s, k) => { s.hidden = k !== introIndex; });
+  const last = introIndex === introSteps.length - 1;
+  $('intro-prev').disabled = introIndex === 0;
+  if ($('intro-prev').disabled && document.activeElement === $('intro-prev')) $('intro-next').focus({ preventScroll: true });
+  tr($('intro-next'), last ? 'intro.done' : 'intro.next');
+  tr($('intro-count'), 'intro.step', { n: introIndex + 1, total: introSteps.length });
+}
+function openIntro(trigger) {
+  introTrigger = trigger ?? null;
+  showIntroStep(0);
+  behindWelcome.forEach((n) => { n.inert = true; });
+  intro.hidden = false;
+  $('intro-next').focus({ preventScroll: true });
+}
+function closeIntro() {
+  if (intro.hidden) return;
+  intro.hidden = true;
+  behindWelcome.forEach((n) => { n.inert = false; });
+  introTrigger?.focus?.({ preventScroll: true });
+  introTrigger = null;
+}
+$('intro-open').addEventListener('click', (ev) => openIntro(ev.currentTarget));
+$('intro-close').addEventListener('click', closeIntro);
+$('intro-prev').addEventListener('click', () => showIntroStep(introIndex - 1));
+$('intro-next').addEventListener('click', () => {
+  if (introIndex === introSteps.length - 1) closeIntro();
+  else showIntroStep(introIndex + 1);
+});
+intro.addEventListener('pointerdown', (ev) => { if (ev.target === intro) closeIntro(); }); // click outside the box
+intro.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') { closeIntro(); return; }
+  if (ev.key === 'ArrowRight') showIntroStep(introIndex + 1);
+  else if (ev.key === 'ArrowLeft') showIntroStep(introIndex - 1);
+  else if (ev.key === 'Tab') { // keep focus inside the dialog
+    const f = [...intro.querySelectorAll('button')].filter((b) => !b.disabled);
+    const first = f[0], end = f[f.length - 1];
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); end.focus(); }
+    else if (!ev.shiftKey && document.activeElement === end) { ev.preventDefault(); first.focus(); }
+  }
+});
+
 if (storage.get(WELCOME_KEY) !== '1') {
   behindWelcome.forEach((n) => { n.inert = true; });
   welcome.hidden = false;

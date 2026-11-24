@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politiska sfären 4D</title>
-<link rel="stylesheet" href="style.css?v=20261123e">
+<link rel="stylesheet" href="style.css?v=20261124b">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261123e",
-    "./i18n.js": "./i18n.js?v=20261123e",
-    "./countries.js": "./countries.js?v=20261123e",
-    "./governments.js": "./governments.js?v=20261123e",
-    "./explain.js": "./explain.js?v=20261123e",
-    "./data.js": "./data.js?v=20261123e",
-    "./math.js": "./math.js?v=20261123e",
-    "./table.js": "./table.js?v=20261123e"
+    "./app.js": "./app.js?v=20261124b",
+    "./i18n.js": "./i18n.js?v=20261124b",
+    "./countries.js": "./countries.js?v=20261124b",
+    "./governments.js": "./governments.js?v=20261124b",
+    "./explain.js": "./explain.js?v=20261124b",
+    "./data.js": "./data.js?v=20261124b",
+    "./math.js": "./math.js?v=20261124b",
+    "./table.js": "./table.js?v=20261124b"
   }
 }
 </script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261123e in the import map
-     and in the stylesheet link: sed -i '' 's/20261123e/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261124b in the import map
+     and in the stylesheet link: sed -i '' 's/20261124b/NEW/g' index.html -->
 
 </head>
 <body>
@@ -66,7 +66,7 @@
     <header class="hud-head">
       <div>
         <h1 data-i18n="app.title">Politiska sfären 4D</h1>
-        <p class="sub" data-i18n="app.subtitle">Politiska partier som vektorer i ℝ⁴</p>
+        <p class="sub"><button id="intro-open" class="sub-link" type="button" aria-haspopup="dialog" data-i18n="app.subtitle">Så fungerar sfären ⓘ</button></p>
       </div>
       <div class="head-actions">
         <button id="lang-btn" class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Språk" data-i18n-aria-label="lang.label"><span class="code">SE</span></button>
@@ -177,6 +177,103 @@
       <button id="welcome-start" class="btn" type="button" data-i18n="welcome.start">Börja utforska</button>
     </section>
   </div>
+</div>
+
+<!-- How-it-works modal: four steps, each a small diagram (1D line -> 2D plane with GAL-TAN -> 3D box with Z -> W as colour). -->
+<div id="intro" hidden>
+  <section id="intro-box" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <header class="intro-top">
+      <h2 id="intro-title" data-i18n="intro.title">Så fungerar den politiska sfären</h2>
+      <button id="intro-close" type="button" aria-label="Stäng" data-i18n-aria-label="intro.close">×</button>
+    </header>
+
+    <div class="intro-step" hidden>
+      <svg viewBox="0 0 300 200" role="img" aria-hidden="true">
+        <line class="ax" x1="40" y1="90" x2="260" y2="90"/>
+        <path class="ax" d="M252 84 L260 90 L252 96 M48 84 L40 90 L48 96" fill="none"/>
+        <circle class="dot" cx="72" cy="90" r="7"/><circle class="dot" cx="118" cy="90" r="7"/>
+        <circle class="dot" cx="172" cy="90" r="7"/><circle class="dot" cx="226" cy="90" r="7"/>
+        <text x="150" y="60" text-anchor="middle" class="cap" data-i18n="intro.parties">Varje prick är ett parti</text>
+        <text x="40" y="122" class="lbl" data-i18n="intro.left">Vänster</text>
+        <text x="260" y="122" text-anchor="end" class="lbl" data-i18n="intro.right">Höger</text>
+        <text x="40" y="138" class="sm" data-i18n="axis.x.neg">Statlig omfördelning</text>
+        <text x="260" y="138" text-anchor="end" class="sm" data-i18n="axis.x.pos">Fri marknad</text>
+      </svg>
+      <h3 data-i18n="intro.1.h">1D · Vänster–höger</h3>
+      <p data-i18n="intro.1.p"></p>
+    </div>
+
+    <div class="intro-step" hidden>
+      <svg viewBox="0 0 300 200" role="img" aria-hidden="true">
+        <rect class="plane" x="50" y="30" width="200" height="140"/>
+        <line class="ax" x1="40" y1="100" x2="260" y2="100"/>
+        <line class="ax" x1="150" y1="22" x2="150" y2="178"/>
+        <path class="ax" d="M252 94 L260 100 L252 106 M48 94 L40 100 L48 106 M144 30 L150 22 L156 30 M144 170 L150 178 L156 170" fill="none"/>
+        <circle class="dot" cx="78" cy="58" r="7"/><circle class="dot" cx="96" cy="128" r="7"/>
+        <circle class="dot" cx="126" cy="82" r="7"/><circle class="dot" cx="188" cy="142" r="7"/>
+        <circle class="dot" cx="214" cy="68" r="7"/><circle class="dot" cx="178" cy="104" r="7"/>
+        <text x="150" y="14" text-anchor="middle" class="lbl" data-i18n="axis.y.pos">GAL</text>
+        <text x="150" y="195" text-anchor="middle" class="lbl" data-i18n="axis.y.neg">TAN</text>
+        <text x="36" y="118" class="lbl" data-i18n="intro.left">Vänster</text>
+        <text x="264" y="118" text-anchor="end" class="lbl" data-i18n="intro.right">Höger</text>
+      </svg>
+      <h3 data-i18n="intro.2.h">2D · Lägg till GAL–TAN</h3>
+      <p data-i18n="intro.2.p"></p>
+    </div>
+
+    <div class="intro-step" hidden>
+      <svg viewBox="0 0 300 200" role="img" aria-hidden="true">
+        <g class="cube">
+          <rect x="50" y="65" width="100" height="100"/><rect x="110" y="20" width="100" height="100"/>
+          <path d="M50 65 L110 20 M150 65 L210 20 M50 165 L110 120 M150 165 L210 120"/>
+        </g>
+        <line class="ax" x1="80" y1="95" x2="180" y2="95"/>
+        <line class="ax" x1="130" y1="45" x2="130" y2="145"/>
+        <line class="ax ax-z" x1="100" y1="115" x2="160" y2="75"/>
+        <circle class="dot" cx="108" cy="84" r="6"/><circle class="dot" cx="152" cy="68" r="5"/>
+        <circle class="dot" cx="96" cy="128" r="7"/><circle class="dot" cx="164" cy="112" r="6"/>
+        <circle class="dot" cx="134" cy="98" r="6"/>
+        <text x="76" y="90" text-anchor="end" class="lbl" data-i18n="intro.left">Vänster</text>
+        <text x="186" y="90" class="lbl" data-i18n="intro.right">Höger</text>
+        <text x="130" y="39" text-anchor="middle" class="lbl" data-i18n="axis.y.pos">GAL</text>
+        <text x="130" y="158" text-anchor="middle" class="lbl" data-i18n="axis.y.neg">TAN</text>
+        <text x="168" y="64" class="lbl lbl-z" data-i18n="axis.z.pos">Antietablissemang</text>
+        <text x="92" y="136" text-anchor="end" class="lbl lbl-z" data-i18n="axis.z.neg">Institutionalist</text>
+      </svg>
+      <h3 data-i18n="intro.3.h">3D · Lägg till antietablissemang</h3>
+      <p data-i18n="intro.3.p"></p>
+    </div>
+
+    <div class="intro-step" hidden>
+      <svg viewBox="0 0 300 200" role="img" aria-hidden="true">
+        <defs><linearGradient id="intro-wgrad" x1="0" y1="0" x2="1" y2="0"></linearGradient></defs>
+        <g transform="translate(50 0) scale(0.82)">
+          <g class="cube">
+            <rect x="50" y="65" width="100" height="100"/><rect x="110" y="20" width="100" height="100"/>
+            <path d="M50 65 L110 20 M150 65 L210 20 M50 165 L110 120 M150 165 L210 120"/>
+          </g>
+          <line class="ax faint" x1="80" y1="95" x2="180" y2="95"/>
+          <line class="ax faint" x1="130" y1="45" x2="130" y2="145"/>
+          <line class="ax faint" x1="100" y1="115" x2="160" y2="75"/>
+          <circle class="wdot" data-w="-0.9" cx="108" cy="84" r="6"/><circle class="wdot" data-w="-0.4" cx="152" cy="68" r="6.5"/>
+          <circle class="wdot" data-w="0.1" cx="96" cy="128" r="7.5"/><circle class="wdot" data-w="0.6" cx="164" cy="112" r="8.5"/>
+          <circle class="wdot" data-w="0.95" cx="134" cy="98" r="9.5"/>
+        </g>
+        <text x="150" y="156" text-anchor="middle" class="cap" data-i18n="axis.w.name">Tempo</text>
+        <rect x="50" y="163" width="200" height="10" rx="5" fill="url(#intro-wgrad)" class="wbar"/>
+        <text x="50" y="192" class="sm" data-i18n="legend.neg">−1 Stegvis</text>
+        <text x="250" y="192" text-anchor="end" class="sm" data-i18n="legend.pos">+1 Radikal</text>
+      </svg>
+      <h3 data-i18n="intro.4.h">4D · Tempo som färg</h3>
+      <p data-i18n="intro.4.p"></p>
+    </div>
+
+    <footer class="intro-nav">
+      <button id="intro-prev" class="btn" type="button" data-i18n="intro.prev">Föregående</button>
+      <span id="intro-count" class="intro-count" aria-live="polite"></span>
+      <button id="intro-next" class="btn btn-primary" type="button" data-i18n="intro.next">Nästa</button>
+    </footer>
+  </section>
 </div>
 
 <section id="fallback" hidden>
