@@ -22,7 +22,7 @@ const css = ([r, g, b]) => `rgb(${Math.round(r * 255)} ${Math.round(g * 255)} ${
 /* ------------------------------------------------------------------ state */
 const state = {
   you: [...YOU.vec],
-  size: { party: 1, you: 1 }, // bubble size multipliers (HUD "Display" sliders)
+  size: { party: 1, you: 0.4 }, // bubble size multipliers (HUD "Display" sliders)
   slots: [DEFAULT_COUNTRY, null], // selected country codes: slot 0 = A (spheres), slot 1 = B (diamonds)
   showYou: false, // the "You" marker starts hidden; tick the checkbox to show it
   bySeats: false, // size party bubbles by seat share in the latest election
@@ -63,7 +63,7 @@ reduceMotionMQ.addEventListener('change', () => { controls.enableDamping = !redu
 
 /* ------------------------------------------------------------ space / axes */
 const axisLabels = []; // { axis, div }: end-of-axis labels, faded out when the camera looks straight along their axis
-const gridPlanes = {}; // box | xy | xz | yz | floor -> object3D, toggled from the HUD
+const gridPlanes = {}; // box | xy | xz | yz -> object3D, toggled from the HUD
 function buildSpace() {
   const g = new THREE.Group();
   const box = new THREE.BoxGeometry(2, 2, 2);
@@ -88,11 +88,10 @@ function buildSpace() {
   const gXZ = grid(0.16);                         // y = 0 (horizontal)
   const gXY = grid(0.16); gXY.rotation.x = Math.PI / 2; // z = 0
   const gYZ = grid(0.16); gYZ.rotation.z = Math.PI / 2; // x = 0
-  const floor = grid(0.26); floor.position.y = -1;      // Y = -1 floor
-  g.add(gXZ, gXY, gYZ, floor);
-  Object.assign(gridPlanes, { box: outerBox, xy: gXY, xz: gXZ, yz: gYZ, floor });
+  g.add(gXZ, gXY, gYZ);
+  Object.assign(gridPlanes, { box: outerBox, xy: gXY, xz: gXZ, yz: gYZ });
   // Default view: only the outer box. The grid planes are opt-in from the HUD.
-  for (const k of ['xy', 'xz', 'yz', 'floor']) gridPlanes[k].visible = false;
+  for (const k of ['xy', 'xz', 'yz']) gridPlanes[k].visible = false;
 
   // The three axes through the origin are separate from the grids, so they stay visible when grids are hidden.
   const axisMat = new THREE.LineBasicMaterial({ color: 0xe4eaff, transparent: true, opacity: 0.9 });
@@ -334,7 +333,7 @@ function applySizes() {
   const lab = el('label', 'slider-label');
   lab.htmlFor = id;
   lab.append(tr(el('span', 'axis-name'), labelKey));
-  const out = el('output', 'slider-val', '1.0×');
+  const out = el('output', 'slider-val', state.size[key].toFixed(1) + '×');
   out.htmlFor = id;
   head.append(lab, out);
 
@@ -344,7 +343,7 @@ function applySizes() {
   input.min = '0.4';
   input.max = '3';
   input.step = '0.1';
-  input.value = '1';
+  input.value = String(state.size[key]);
   input.addEventListener('input', () => {
     const v = Math.round(parseFloat(input.value) * 10) / 10;
     state.size[key] = v;
@@ -357,8 +356,8 @@ function applySizes() {
 
 // Grid plane toggles. Axis lines through the origin are not part of these grids and always stay on.
 const gridBoxes = [];
-['box', 'xy', 'xz', 'yz', 'floor'].forEach((key) => {
-  const wrap = el('label', 'check');
+['box', 'xy', 'xz', 'yz'].forEach((key) => {
+  const wrap = el('label', 'check wide'); // the plane names are long: one per row
   trAttr(wrap, 'title', `grid.${key}.tip`);
   const box = el('input');
   box.type = 'checkbox';
@@ -826,7 +825,6 @@ function render() {
     return sec;
   }).filter(Boolean);
   $('leaderboard').replaceChildren(...(sections.length ? sections : [el('p', 'hint', t('matches.pick'))]));
-  $('cos-hint').hidden = matches.length === 0 || matches.every((m) => m.cosine !== null);
 
   // Note under the seat toggle: which selected countries have approximate seat figures.
   const approx = state.slots.filter(Boolean).map((c) => COUNTRY_BY_CODE.get(c)).filter((c) => c.election.approx).map((c) => countryName(c));
