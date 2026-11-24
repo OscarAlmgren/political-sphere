@@ -293,7 +293,11 @@ const sliderRefs = AXES.map((ax, i) => {
 
   // Pole labels under the slider open the explainer (this is the way to reach the W axis, which has no 3D labels).
   const poleBtn = (sign) => {
-    const b = tr(el('button', 'pole-btn'), sign < 0 ? 'slider.poleNeg' : 'slider.polePos', { pole: `@axis.${ax.key}.${sign < 0 ? 'neg' : 'pos'}` });
+    const b = el('button', 'pole-btn');
+    const badge = el('span', 'i', 'i'); // (i) sits on the outer edge: before the left pole, after the right one
+    badge.setAttribute('aria-hidden', 'true');
+    const text = tr(el('span', 't'), sign < 0 ? 'slider.poleNeg' : 'slider.polePos', { pole: `@axis.${ax.key}.${sign < 0 ? 'neg' : 'pos'}` });
+    b.append(...(sign < 0 ? [badge, text] : [text, badge]));
     b.type = 'button';
     trAttr(b, 'title', 'slider.poleTip');
     b.addEventListener('click', () => openExplainer(i, sign, b));
