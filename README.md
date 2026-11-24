@@ -50,6 +50,17 @@ Match % is `(1 − d/4) × 100` (4 is the maximum 4D distance). Cosine similarit
 
 Party positions are illustrative estimates. X and Y loosely follow Chapel Hill Expert Survey dimensions (galtan inverted so GAL = +1); Z and W are subjective.
 
+## Linked data
+
+The page carries hidden semantic metadata (nothing visible changes):
+
+- **Static JSON-LD in `index.html`**: a `WebApplication` and a `Dataset`, so crawlers see them without running JavaScript.
+- **Runtime JSON-LD graph** (`lod.js`): once the page is idle it adds `<script type="application/ld+json" id="ld-graph">` to `<head>`. It describes every country, chamber, election, party and government with schema.org types (`Country`, `GovernmentOrganization`, `Event`, `PoliticalParty`, `Observation`). Each party position is one `Observation` (`observationAbout` the party, `measuredProperty` the axis, `value` −1…+1); seats are one more, dated to the election. Labels carry both languages (`sv`, `en`). Inspect it with `JSON.parse(document.getElementById('ld-graph').textContent)`.
+- **Axis vocabulary** (`vocab/axes.jsonld`): a SKOS concept scheme with the four axes and their eight poles, labelled in Swedish and English and linked to Wikidata concepts. The axis URIs used by the observations resolve here. Only `closeMatch` / `relatedMatch` are used, never `exactMatch`: the positions are estimates, and the metadata says so (`measurementTechnique`).
+- **Identifiers** (`ids.js`): Wikidata QIDs for countries, chambers, elections and parties (`COUNTRY_IDS` also holds the ISO alpha-3 code that links each country to the EU Publications Office authority list), and [Party Facts](https://partyfacts.herokuapp.com/) ids for parties (Party Facts in turn links to ParlGov, CHES and the Manifesto Project). `null` means "looked for, none exists"; the tests require every country and party to have an entry.
+
+All `@id`s are minted under `https://oscaralmgren.github.io/political-sphere/` (the `BASE` constant in `lod.js`). If the site moves, change that one constant and the same prefix in `vocab/axes.jsonld` and the static block in `index.html`.
+
 ## Files
 
 - `math.js`: pure 4D math and W→colour/scale mapping (no DOM, no Three.js)
@@ -59,6 +70,9 @@ Party positions are illustrative estimates. X and Y loosely follow Chapel Hill E
 - `explain.js`: axis-pole explanations, data notes (sv/en) and the per-country lean calculation
 - `i18n.js`: translations (sv/en), language list, country names and election-label formatting
 - `table.js`: DOM helpers and the parties table (also used by the fallback)
+- `ids.js`: Wikidata and Party Facts identifiers for countries and parties (data only)
+- `lod.js`: builds the JSON-LD graph from the data and injects it into `<head>`
+- `vocab/axes.jsonld`: SKOS vocabulary for the four axes, their poles and the seats measure
 - `app.js`: scene, interaction and HUD wiring
 - `tests.html`, `tests/math.test.js`: in-browser tests (math, data integrity, explanations, translations)
 
@@ -97,7 +111,8 @@ country('SE', 'Sweden', 'nordic', { chamber: 'Riksdag', date: '2026-09', total: 
 
 - **Seat counts:** cite an official source (the national election authority or parliament, otherwise a reputable news agency) in the pull request. Seats are for the latest national election of the main chamber. Listed seats may not exceed `total` (the tests check this). Use `approx: 'group' | 'composition' | 'notfinal'` in the election object when a figure is not exact.
 - **Party positions (X, Y, Z, W):** these are subjective estimates, not measurements (see "Where do these numbers come from?" in the app). If you want to change one, explain your reasoning and what it is based on, for example the party programme, the Chapel Hill Expert Survey or a published analysis. Values range from −1 to +1; abbreviations must be unique within a country.
-- **New country:** add the entry (ISO 3166-1 alpha-2 code, which also selects the flag), its Swedish name in `COUNTRY_NAMES_SV` and, where there is a generic English chamber name, a Swedish one in `CHAMBERS_SV` (both in `i18n.js`), and update the country count asserted in `tests/math.test.js`.
+- **New country:** add the entry (ISO 3166-1 alpha-2 code, which also selects the flag), its Swedish name in `COUNTRY_NAMES_SV` and, where there is a generic English chamber name, a Swedish one in `CHAMBERS_SV` (both in `i18n.js`), an entry in `COUNTRY_IDS` in `ids.js` (Wikidata QIDs of the country, chamber and election, ISO alpha-3), and update the country count asserted in `tests/math.test.js`.
+- **New party:** besides the row in `countries.js`, add `'CC:ABBR': { wd: 'Q…', pf: 123 }` to `PARTY_IDS` in `ids.js` (Wikidata QID and Party Facts id, or `null` where none exists) and cite the Wikidata item in the pull request.
 - **Governments:** edit the country's entry in `governments.js` (`parties`, `pm`, `support`, `unlisted`, `status`, `verified`) with a source in the pull request. `support` is only for parties that back the government from outside under an agreement, not one-off votes. A new country needs an entry here too (the tests check that every country has one and that all abbreviations exist).
 - **Coalitions and mergers:** if a list ran as one entity in the election, model it as one party.
 

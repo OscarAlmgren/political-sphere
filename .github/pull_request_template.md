@@ -6,10 +6,11 @@
 - [ ] Data correction (seat counts / election)
 - [ ] Party position change (explain the reasoning below)
 - [ ] New country or language
+- [ ] Linked-data identifiers (`ids.js`, `vocab/axes.jsonld`)
 - [ ] Bug fix or UI change
 
 ## Sources (required for data changes)
-<!-- Link the official result, or what a changed position is based on. -->
+<!-- Link the official result, or what a changed position is based on. For identifier changes, link the Wikidata item (and Party Facts page). -->
 
 ## Checklist
 - [ ] The base branch is `dev`
