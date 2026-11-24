@@ -22,7 +22,7 @@ const css = ([r, g, b]) => `rgb(${Math.round(r * 255)} ${Math.round(g * 255)} ${
 /* ------------------------------------------------------------------ state */
 const state = {
   you: [...YOU.vec],
-  size: { party: 1, you: 1 }, // bubble size multipliers (HUD "Display" sliders)
+  size: { party: 1, you: 0.4 }, // bubble size multipliers (HUD "Display" sliders)
   slots: [DEFAULT_COUNTRY, null], // selected country codes: slot 0 = A (spheres), slot 1 = B (diamonds)
   showYou: false, // the "You" marker starts hidden; tick the checkbox to show it
   bySeats: false, // size party bubbles by seat share in the latest election
@@ -333,7 +333,7 @@ function applySizes() {
   const lab = el('label', 'slider-label');
   lab.htmlFor = id;
   lab.append(tr(el('span', 'axis-name'), labelKey));
-  const out = el('output', 'slider-val', '1.0×');
+  const out = el('output', 'slider-val', state.size[key].toFixed(1) + '×');
   out.htmlFor = id;
   head.append(lab, out);
 
@@ -343,7 +343,7 @@ function applySizes() {
   input.min = '0.4';
   input.max = '3';
   input.step = '0.1';
-  input.value = '1';
+  input.value = String(state.size[key]);
   input.addEventListener('input', () => {
     const v = Math.round(parseFloat(input.value) * 10) / 10;
     state.size[key] = v;
