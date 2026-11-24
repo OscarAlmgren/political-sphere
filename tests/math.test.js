@@ -2,11 +2,13 @@ import {
   euclideanDistance4D, cosineSimilarity4D, matchPercent, getClosestMatches,
   wToColor, wToScale, seatScale, clampVec4, isValidVec4, W_STOPS_HEX,
 } from '../math.js';
-import { POLES, DATA_NOTES, getPole, getDataNotes, poleKey, isCustomAxis, strengthWord, countryLean } from '../explain.js';
+import { POLES, DATA_NOTES, getPole, getDataNotes, poleKey, isCustomAxis, strengthWord, countryLean, AXIS_KEYS } from '../explain.js';
 import { STRINGS, LANGS, DEFAULT_LANG, t, useLang, countryName, electionLabel } from '../i18n.js';
 import { COUNTRIES, COUNTRY_BY_CODE, COUNTRY_GROUPS } from '../countries.js';
 import { GOVERNMENTS, GOVERNMENT_BY_CODE } from '../governments.js';
 import { minimumSpanningTree } from '../math.js';
+import { COUNTRY_IDS, PARTY_IDS } from '../ids.js';
+import { buildGraph, BASE, VOCAB, axisId, seatsId, datasetId, methodId, partyId, observationId } from '../lod.js';
 
 const PARTIES = COUNTRY_BY_CODE.get('SE').parties;
 
@@ -17,6 +19,11 @@ function test(name, fn) {
   catch (e) { results.push({ name, ok: false, err: e.message }); }
 }
 function assert(cond, msg = 'assertion failed') { if (!cond) throw new Error(msg); }
+/** Same as test(), for tests that fetch files. Awaited at top level, so the results are complete before they are drawn. */
+async function testAsync(name, fn) {
+  try { await fn(); results.push({ name, ok: true }); }
+  catch (e) { results.push({ name, ok: false, err: e.message }); }
+}
 
 test('distance: identical vectors = 0', () => assert(euclideanDistance4D([0.1, 0.2, 0.3, 0.4], [0.1, 0.2, 0.3, 0.4]) === 0));
 test('distance: opposite corners = 4', () => assert(near(euclideanDistance4D([-1, -1, -1, -1], [1, 1, 1, 1]), 4)));
@@ -234,6 +241,129 @@ test('governments: known cases (Sweden caretaker with SD support, Slovenia with 
   assert(GOVERNMENT_BY_CODE.get('SI').support.join() === 'RES');
   assert(GOVERNMENT_BY_CODE.get('MT').parties.join() === 'PL');
   assert(GOVERNMENT_BY_CODE.get('CY').pm === null);
+});
+
+/* ---------------------------------------------------------------- linked data (ids.js, lod.js, vocab/axes.jsonld) */
+const QID = /^Q[1-9]\d*$/;
+
+test('ids: every country and party has an entry, with every field present (null = deliberately no identifier)', () => {
+  assert(Object.keys(COUNTRY_IDS).length === COUNTRIES.length, 'COUNTRY_IDS and COUNTRIES differ in size');
+  for (const c of COUNTRIES) {
+    const ci = COUNTRY_IDS[c.code];
+    assert(ci, `no COUNTRY_IDS entry for ${c.code}`);
+    for (const f of ['wd', 'iso3', 'chamber', 'election']) assert(f in ci, `${c.code}: COUNTRY_IDS is missing "${f}"`);
+    for (const p of c.parties) {
+      assert(p.id in PARTY_IDS, `no PARTY_IDS entry for ${p.id}`);
+      for (const f of ['wd', 'pf']) assert(f in PARTY_IDS[p.id], `${p.id}: PARTY_IDS is missing "${f}"`);
+    }
+  }
+  const known = new Set(COUNTRIES.flatMap((c) => c.parties.map((p) => p.id)));
+  for (const k of Object.keys(PARTY_IDS)) assert(known.has(k), `PARTY_IDS has an entry for a party that does not exist: ${k}`);
+});
+test('ids: formats (Wikidata QIDs, ISO 3166-1 alpha-3, Party Facts integers) and no duplicates', () => {
+  for (const [code, ci] of Object.entries(COUNTRY_IDS)) {
+    assert(QID.test(ci.wd), `${code}: bad country QID ${ci.wd}`);
+    assert(QID.test(ci.chamber), `${code}: bad chamber QID ${ci.chamber}`);
+    assert(/^[A-Z]{3}$/.test(ci.iso3), `${code}: bad ISO alpha-3 ${ci.iso3}`);
+    assert(ci.election === null || QID.test(ci.election), `${code}: bad election QID ${ci.election}`);
+  }
+  // Unique within a country. The same party may legitimately sit in two countries (Sinn Féin in IE and GB).
+  for (const c of COUNTRIES) {
+    const wds = [], pfs = [];
+    for (const p of c.parties) {
+      const pi = PARTY_IDS[p.id];
+      assert(pi.wd === null || QID.test(pi.wd), `${p.id}: bad Wikidata QID ${pi.wd}`);
+      assert(pi.pf === null || (Number.isInteger(pi.pf) && pi.pf > 0), `${p.id}: bad Party Facts id ${pi.pf}`);
+      if (pi.wd) wds.push(pi.wd);
+      if (pi.pf) pfs.push(pi.pf);
+    }
+    assert(new Set(wds).size === wds.length, `${c.code}: duplicate party QID ${wds.find((q, i) => wds.indexOf(q) !== i)}`);
+    assert(new Set(pfs).size === pfs.length, `${c.code}: duplicate Party Facts id ${pfs.find((q, i) => pfs.indexOf(q) !== i)}`);
+  }
+});
+
+test('lod: unique @ids; every party has its four axis observations (equal to its vector) and a seats observation', () => {
+  const g = buildGraph()['@graph'];
+  const ids = g.map((n) => n['@id']);
+  assert(new Set(ids).size === ids.length, `duplicate @id: ${ids.find((q, i) => ids.indexOf(q) !== i)}`);
+  const byId = new Map(g.map((n) => [n['@id'], n]));
+  for (const c of COUNTRIES) {
+    for (const p of c.parties) {
+      const node = byId.get(partyId(c.code, p.abbr));
+      assert(node && node['@type'] === 'PoliticalParty', `${p.id}: no PoliticalParty node`);
+      AXIS_KEYS.forEach((k, i) => {
+        const o = byId.get(observationId(c.code, p.abbr, k));
+        assert(o && o['@type'] === 'Observation', `${p.id}: no ${k} observation`);
+        assert(o.value === p.vec[i], `${p.id}: ${k} is ${o.value}, expected ${p.vec[i]}`);
+        assert(o.observationAbout['@id'] === node['@id'] && o.measuredProperty['@id'] === axisId(k), `${p.id}: ${k} observation points at the wrong party or axis`);
+      });
+      const s = byId.get(observationId(c.code, p.abbr, 'seats'));
+      if (p.seats == null) assert(!s, `${p.id}: seats observation without seats`);
+      else assert(s && s.value === p.seats && s.maxValue === c.election.total && s.measuredProperty['@id'] === seatsId, `${p.id}: bad seats observation`);
+    }
+  }
+});
+test('lod: every reference into this site resolves to a node (or to a known axis / the seats concept)', () => {
+  const g = buildGraph()['@graph'];
+  const have = new Set(g.map((n) => n['@id']));
+  const vocab = new Set([...AXIS_KEYS.map(axisId), seatsId]);
+  const bad = [];
+  (function walk(v) {
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (!v || typeof v !== 'object') return;
+    const keys = Object.keys(v);
+    if (keys.length === 1 && keys[0] === '@id' && v['@id'].startsWith(BASE) && !have.has(v['@id']) && !vocab.has(v['@id'])) bad.push(v['@id']);
+    Object.values(v).forEach(walk);
+  })(g);
+  assert(!bad.length, `dangling references: ${bad.slice(0, 5).join(', ')}`);
+  assert(have.has(datasetId) && have.has(methodId), 'dataset or method node missing');
+});
+test('lod: governments only point at parties that exist, one government node per country', () => {
+  const g = buildGraph()['@graph'];
+  const have = new Set(g.map((n) => n['@id']));
+  const govs = g.filter((n) => n['@type'] === 'GovernmentOrganization' && n['@id'].includes('#government-'));
+  assert(govs.length === COUNTRIES.length, `${govs.length} government nodes for ${COUNTRIES.length} countries`);
+  for (const gov of govs) for (const role of gov.member) {
+    const m = role.member;
+    assert(m['@id'] ? have.has(m['@id']) : m.name, `${gov['@id']}: role points at nothing`);
+  }
+});
+test('lod: the graph survives a JSON round trip unchanged', () => {
+  const g = buildGraph();
+  assert(JSON.stringify(JSON.parse(JSON.stringify(g))) === JSON.stringify(g));
+});
+
+await testAsync('vocab: axes.jsonld defines 4 axes and 8 poles whose labels equal the UI strings (sv and en)', async () => {
+  const res = await fetch(new URL('../vocab/axes.jsonld', import.meta.url));
+  assert(res.ok, `vocab/axes.jsonld: HTTP ${res.status}`);
+  const doc = await res.json();
+  const byId = new Map(doc['@graph'].map((n) => [n['@id'], n]));
+  const label = (node, lang) => {
+    const l = [].concat(node['skos:prefLabel']).find((x) => x['@language'] === lang);
+    return l && l['@value'];
+  };
+  for (const k of AXIS_KEYS) {
+    const axis = byId.get(axisId(k));
+    assert(axis, `axes.jsonld has no #${k}`);
+    for (const lang of ['sv', 'en']) assert(label(axis, lang) === STRINGS[lang][`axis.${k}.name`], `#${k} ${lang} label differs from axis.${k}.name`);
+    for (const pole of ['neg', 'pos']) {
+      const node = byId.get(`${VOCAB}#${k}-${pole}`);
+      assert(node, `axes.jsonld has no #${k}-${pole}`);
+      assert([].concat(node['skos:broader']).some((b) => b['@id'] === axisId(k)), `#${k}-${pole} is not broader-linked to #${k}`);
+      for (const lang of ['sv', 'en']) assert(label(node, lang) === STRINGS[lang][`axis.${k}.${pole}`], `#${k}-${pole} ${lang} label differs from axis.${k}.${pole}`);
+    }
+  }
+  assert(byId.has(seatsId), 'axes.jsonld has no #seats');
+  for (const n of doc['@graph']) assert(!('skos:exactMatch' in n), `${n['@id']} uses skos:exactMatch: the axes are estimates, only close/related/broad matches are honest`);
+});
+await testAsync('index.html: the static JSON-LD block parses and shares its @ids with the runtime graph', async () => {
+  const html = await (await fetch(new URL('../index.html', import.meta.url))).text();
+  const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert(m, 'no static JSON-LD block');
+  const doc = JSON.parse(m[1]);
+  const ids = doc['@graph'].map((n) => n['@id']);
+  assert(ids.includes(datasetId), 'static block lacks the dataset @id');
+  assert(doc['@graph'].some((n) => n['@type'] === 'WebApplication'), 'static block lacks the WebApplication');
 });
 
 const failed = results.filter((r) => !r.ok);

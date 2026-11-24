@@ -30,6 +30,9 @@ Module graph (all in the repo root, flat):
 - `i18n.js` — `STRINGS` (sv/en), `t()`, `LANGS`, country/chamber name translation, `electionLabel`. Imports `countries.js`.
 - `explain.js` — longer bilingual text (axis-pole explainers, "where do these numbers come from" `DATA_NOTES`) and `countryLean` (seat-weighted lean per axis).
 - `table.js` — DOM helpers (`el`, `flagImg`) and the party table, also used by the no-WebGL fallback.
+- `ids.js` — data only: `COUNTRY_IDS` (Wikidata QIDs of country/chamber/election, ISO alpha-3) and `PARTY_IDS` (`'SE:V': { wd, pf }`, Wikidata QID + Party Facts id). Keys are the party `id`s from `countries.js`; `null` means "looked for, none exists".
+- `lod.js` — `buildGraph()` (pure, no DOM) turns the data into one JSON-LD graph (schema.org + SKOS axis URIs); `injectGraph()` adds it to `<head>` when idle. Loaded by the inline bootstrap in `index.html`, not by `app.js`, so the no-WebGL fallback gets it and a failure can't break the app. Party positions are `schema:Observation` nodes because `additionalProperty` is not valid on `Organization`.
+- `vocab/axes.jsonld` — hand-written SKOS scheme: the 4 axes, 8 poles and a `#seats` measure. Labels must equal the `axis.*` strings in `i18n.js` (tests check). Only `closeMatch`/`relatedMatch`, never `exactMatch`: the positions are estimates.
 - `app.js` (~1100 lines) — the whole scene, interaction and HUD wiring: one module-level `state` object, Three.js scene + `CSS2DRenderer` labels, rebuild functions (e.g. `rebuildGovernment`) that redraw from `state`, and `onLangChange` re-rendering.
 
 Things that span files:
@@ -43,7 +46,7 @@ Things that span files:
 ## Gotchas when changing things
 
 - **Cache busting:** `index.html` maps every local module and the stylesheet to a `?v=…` URL. When you change any `.js`/`.css` for a release, bump the version everywhere with `sed -i '' 's/OLDVERSION/NEWVERSION/g' index.html` (take OLDVERSION from the current import map; the README's example value is out of date). A **new local module must also be added to the import map**.
-- **Adding a country** touches several files: the `country(...)` entry in `countries.js`, `COUNTRY_NAMES_SV` (and `CHAMBERS_SV` if needed) in `i18n.js`, an entry in `governments.js`, and the country count asserted in `tests/math.test.js` (tests enforce all of these).
+- **Adding a country** touches several files: the `country(...)` entry in `countries.js`, `COUNTRY_NAMES_SV` (and `CHAMBERS_SV` if needed) in `i18n.js`, an entry in `governments.js`, an entry in `COUNTRY_IDS` and one `PARTY_IDS` entry per party in `ids.js`, and the country count asserted in `tests/math.test.js` (tests enforce all of these). Adding a single party also needs its `PARTY_IDS` entry. Changing an axis label or pole means updating `vocab/axes.jsonld` too. The `@id` base URL is the `BASE` constant in `lod.js` (repeated in `vocab/axes.jsonld` and the static JSON-LD in `index.html`).
 - **Adding/changing a string:** every key must exist in both `sv` and `en` with identical `{placeholders}`; tests fail otherwise. Adding a language means `LANGS` + `STRINGS` + country names + `explain.js` pole/data-note text.
 - Listed seats per country must not exceed the election `total`; party abbreviations must be unique within a country; vector values within [-1, 1].
 - Preserve keyboard/screen-reader support, ≥44px touch targets and `prefers-reduced-motion` behaviour.

@@ -5,26 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politiska sfären 4D</title>
-<link rel="stylesheet" href="style.css?v=20261124j">
+<link rel="stylesheet" href="style.css?v=20261124k">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261124j",
-    "./i18n.js": "./i18n.js?v=20261124j",
-    "./countries.js": "./countries.js?v=20261124j",
-    "./governments.js": "./governments.js?v=20261124j",
-    "./explain.js": "./explain.js?v=20261124j",
-    "./data.js": "./data.js?v=20261124j",
-    "./math.js": "./math.js?v=20261124j",
-    "./table.js": "./table.js?v=20261124j"
+    "./app.js": "./app.js?v=20261124k",
+    "./i18n.js": "./i18n.js?v=20261124k",
+    "./countries.js": "./countries.js?v=20261124k",
+    "./governments.js": "./governments.js?v=20261124k",
+    "./explain.js": "./explain.js?v=20261124k",
+    "./data.js": "./data.js?v=20261124k",
+    "./math.js": "./math.js?v=20261124k",
+    "./table.js": "./table.js?v=20261124k",
+    "./ids.js": "./ids.js?v=20261124k",
+    "./lod.js": "./lod.js?v=20261124k"
   }
 }
 </script>
+<!-- Linked data. This static block is what crawlers see without running JavaScript; lod.js adds the full graph (countries,
+     parties, positions, governments) as <script id="ld-graph"> once the page is idle. Both use the same @id values, so
+     they merge. The axes are defined in vocab/axes.jsonld (SKOS). -->
+<link rel="describedby" type="application/ld+json" href="vocab/axes.jsonld">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/#app",
+      "@type": "WebApplication",
+      "name": [
+        { "@language": "sv", "@value": "Politiska sfären 4D" },
+        { "@language": "en", "@value": "Political Sphere 4D" }
+      ],
+      "url": "https://oscaralmgren.github.io/political-sphere/",
+      "inLanguage": ["sv", "en"],
+      "applicationCategory": "EducationalApplication",
+      "browserRequirements": "Requires JavaScript. WebGL is used for the 3D view; a party table is shown without it.",
+      "isAccessibleForFree": true,
+      "about": { "@id": "https://oscaralmgren.github.io/political-sphere/#dataset" }
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/#dataset",
+      "@type": "Dataset",
+      "name": [
+        { "@language": "sv", "@value": "Politiska sfären 4D: partiernas positioner" },
+        { "@language": "en", "@value": "Political Sphere 4D: party positions" }
+      ],
+      "description": [
+        { "@language": "sv", "@value": "Illustrativa uppskattningar av var partier står på fyra axlar (ekonomi, sociokulturell, institutionell, tempo), var och en från −1 till +1. Positionerna är inga enkätmätningar." },
+        { "@language": "en", "@value": "Illustrative estimates of where political parties sit on four axes (economic, sociocultural, institutional, tempo), each from −1 to +1. The positions are not survey measurements." }
+      ],
+      "url": "https://oscaralmgren.github.io/political-sphere/"
+    }
+  ]
+}
+</script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261124j in the import map
-     and in the stylesheet link: sed -i '' 's/20261124j/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261124k in the import map
+     and in the stylesheet link: sed -i '' 's/20261124k/NEW/g' index.html -->
 
 </head>
 <body>
@@ -286,6 +326,10 @@
   retranslate();
 
   const $ = (id) => document.getElementById(id);
+
+  // Hidden linked-data graph (JSON-LD in <head>). Loaded on its own, before the WebGL check, so the no-WebGL fallback gets
+  // it too, and a failure here can never affect the app itself.
+  import('./lod.js').then((m) => m.injectGraph()).catch((e) => console.warn('linked-data graph not added:', e));
 
   async function showFallback(reasonKey, args) {
     $('app').hidden = true;
