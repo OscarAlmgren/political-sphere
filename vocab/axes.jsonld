@@ -1,0 +1,315 @@
+{
+  "@context": {
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "dct": "http://purl.org/dc/terms/"
+  },
+  "@graph": [
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme",
+      "@type": "skos:ConceptScheme",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Political Sphere axes" },
+        { "@language": "sv", "@value": "Politiska sfärens axlar" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "The four axes on which the Political Sphere places parties, each running from −1 to +1. Positions are hand-assigned, illustrative estimates, not survey measurements, so external links here are close, broad or related matches only, never exact matches." },
+        { "@language": "sv", "@value": "De fyra axlar som Politiska sfären placerar partier på, var och en från −1 till +1. Positionerna är handplacerade, illustrativa uppskattningar och inga enkätmätningar, så externa länkar här är bara nära, bredare eller relaterade träffar, aldrig exakta." }
+      ],
+      "dct:modified": "2026-11-24",
+      "skos:hasTopConcept": [
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w" }
+      ]
+    },
+
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:topConceptOf": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:notation": "x",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Economic" },
+        { "@language": "sv", "@value": "Ekonomi" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Economic left–right: how large a role the state should play in the economy, from state redistribution (−1) to free market (+1)." },
+        { "@language": "sv", "@value": "Ekonomisk vänster–höger: hur stor roll staten bör ha i ekonomin, från statlig omfördelning (−1) till fri marknad (+1)." }
+      ],
+      "skos:scopeNote": [
+        { "@language": "en", "@value": "Scale modelled on the economic left–right dimension of the Chapel Hill Expert Survey. Only the scale definition follows CHES; the party values were assigned by hand. Range −1…+1, rounded to 0.05." },
+        { "@language": "sv", "@value": "Skalan är modellerad efter den ekonomiska vänster–höger-dimensionen i Chapel Hill Expert Survey. Bara skaldefinitionen följer CHES; partiernas värden är handplacerade. Intervall −1…+1, avrundat till 0,05." }
+      ],
+      "dct:source": { "@id": "https://www.chesdata.eu/" },
+      "skos:broadMatch": { "@id": "http://www.wikidata.org/entity/Q2921172" },
+      "skos:narrower": [
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x-neg" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x-pos" }
+      ]
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x-neg",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x" },
+      "skos:notation": "x-",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "State redistribution" },
+        { "@language": "sv", "@value": "Statlig omfördelning" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Favours a large public role in the economy: progressive taxes, strong welfare and public services, union power and market regulation." },
+        { "@language": "sv", "@value": "Förordar en stor offentlig roll i ekonomin: progressiv beskattning, stark välfärd och offentlig service, fackligt inflytande och marknadsreglering." }
+      ],
+      "skos:closeMatch": { "@id": "http://www.wikidata.org/entity/Q1155757" },
+      "skos:relatedMatch": { "@id": "http://www.wikidata.org/entity/Q192451" }
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x-pos",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#x" },
+      "skos:notation": "x+",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Free market" },
+        { "@language": "sv", "@value": "Fri marknad" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Favours markets and private enterprise with a smaller state: lower taxes, deregulation and individual responsibility." },
+        { "@language": "sv", "@value": "Förordar marknader och privata företag med en mindre stat: lägre skatter, avreglering och eget ansvar." }
+      ],
+      "skos:closeMatch": { "@id": "http://www.wikidata.org/entity/Q46607" }
+    },
+
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:topConceptOf": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:notation": "y",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Sociocultural" },
+        { "@language": "sv", "@value": "Sociokulturell" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "The GAL–TAN dimension: from traditional, authoritarian, nationalist (−1) to green, alternative, libertarian (+1)." },
+        { "@language": "sv", "@value": "GAL–TAN-dimensionen: från traditionell, auktoritär, nationalistisk (−1) till grön, alternativ, libertariansk (+1)." }
+      ],
+      "skos:scopeNote": [
+        { "@language": "en", "@value": "+1 = GAL, i.e. the CHES galtan scale inverted (in CHES a high galtan value means TAN). Only the scale definition follows CHES; the party values were assigned by hand. Range −1…+1, rounded to 0.05." },
+        { "@language": "sv", "@value": "+1 = GAL, det vill säga CHES galtan-skala inverterad (i CHES betyder ett högt galtan-värde TAN). Bara skaldefinitionen följer CHES; partiernas värden är handplacerade. Intervall −1…+1, avrundat till 0,05." }
+      ],
+      "dct:source": { "@id": "https://www.chesdata.eu/" },
+      "skos:closeMatch": { "@id": "http://www.wikidata.org/entity/Q31890667" },
+      "skos:narrower": [
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y-neg" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y-pos" }
+      ]
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y-neg",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y" },
+      "skos:notation": "y-",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "TAN" },
+        { "@language": "sv", "@value": "TAN" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Traditional, Authoritarian, Nationalist" },
+        { "@language": "sv", "@value": "Traditionell, auktoritär, nationalistisk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Stresses national identity and sovereignty, traditional values and social order, and firm authority." },
+        { "@language": "sv", "@value": "Betonar nationell identitet och suveränitet, traditionella värderingar, social ordning och stark auktoritet." }
+      ],
+      "skos:relatedMatch": [
+        { "@id": "http://www.wikidata.org/entity/Q1414298" },
+        { "@id": "http://www.wikidata.org/entity/Q6229" },
+        { "@id": "http://www.wikidata.org/entity/Q6235" }
+      ]
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y-pos",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#y" },
+      "skos:notation": "y+",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "GAL" },
+        { "@language": "sv", "@value": "GAL" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Green, Alternative, Libertarian" },
+        { "@language": "sv", "@value": "Grön, alternativ, libertariansk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Stresses environmental protection, diversity and personal freedom." },
+        { "@language": "sv", "@value": "Betonar miljöskydd, mångfald och personlig frihet." }
+      ],
+      "skos:relatedMatch": [
+        { "@id": "http://www.wikidata.org/entity/Q1661415" },
+        { "@id": "http://www.wikidata.org/entity/Q939214" }
+      ]
+    },
+
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:topConceptOf": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:notation": "z",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Institutional" },
+        { "@language": "sv", "@value": "Institutionell" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Attitude to the political establishment: from trusting institutions, expertise and process (−1) to anti-establishment, “the people against the elite” (+1)." },
+        { "@language": "sv", "@value": "Inställning till det politiska etablissemanget: från tillit till institutioner, expertis och processer (−1) till antietablissemang, ”folket mot eliten” (+1)." }
+      ],
+      "skos:scopeNote": [
+        { "@language": "en", "@value": "This app's own dimension. No established dataset exists for it, so the values are subjective judgements. Range −1…+1, rounded to 0.05." },
+        { "@language": "sv", "@value": "Appens egen dimension. Det finns inget etablerat dataset för den, så värdena är subjektiva bedömningar. Intervall −1…+1, avrundat till 0,05." }
+      ],
+      "skos:narrower": [
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z-neg" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z-pos" }
+      ]
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z-neg",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z" },
+      "skos:notation": "z-",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Institutionalist" },
+        { "@language": "sv", "@value": "Institutionalist" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Technocratic" },
+        { "@language": "sv", "@value": "Teknokratisk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Trusts established institutions, expertise and process: parliaments, courts, civil services, central banks and international bodies." },
+        { "@language": "sv", "@value": "Litar på etablerade institutioner, expertis och processer: parlament, domstolar, förvaltning, centralbanker och internationella organ." }
+      ],
+      "skos:relatedMatch": { "@id": "http://www.wikidata.org/entity/Q190044" }
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z-pos",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#z" },
+      "skos:notation": "z+",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Anti-establishment" },
+        { "@language": "sv", "@value": "Antietablissemang" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Populist" },
+        { "@language": "sv", "@value": "Populistisk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Frames politics as “the people against the elite” and distrusts parties, media, experts and bureaucracy; favours direct or strongman politics." },
+        { "@language": "sv", "@value": "Beskriver politik som ”folket mot eliten” och misstror partier, medier, experter och byråkrati; förordar direkt eller starkledarstyrd politik." }
+      ],
+      "skos:relatedMatch": { "@id": "http://www.wikidata.org/entity/Q180490" }
+    },
+
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:topConceptOf": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:notation": "w",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Tempo" },
+        { "@language": "sv", "@value": "Tempo" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Appetite for the pace and depth of change: from gradual, negotiated reform (−1) to fast, fundamental change (+1). Drawn as colour and a subtle size change." },
+        { "@language": "sv", "@value": "Aptit för förändringens takt och djup: från gradvisa, förhandlade reformer (−1) till snabb, grundläggande förändring (+1). Visas som färg och en diskret storleksförändring." }
+      ],
+      "skos:scopeNote": [
+        { "@language": "en", "@value": "This app's own dimension. No established dataset exists for it, so the values are subjective judgements. Range −1…+1, rounded to 0.05." },
+        { "@language": "sv", "@value": "Appens egen dimension. Det finns inget etablerat dataset för den, så värdena är subjektiva bedömningar. Intervall −1…+1, avrundat till 0,05." }
+      ],
+      "skos:narrower": [
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w-neg" },
+        { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w-pos" }
+      ]
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w-neg",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w" },
+      "skos:notation": "w-",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Incrementalist" },
+        { "@language": "sv", "@value": "Stegvis" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Pragmatic" },
+        { "@language": "sv", "@value": "Pragmatisk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Prefers gradual, negotiated reform and continuity; wary of sweeping change." },
+        { "@language": "sv", "@value": "Föredrar gradvisa, förhandlade reformer och kontinuitet; är försiktig med omvälvande förändringar." }
+      ],
+      "skos:relatedMatch": { "@id": "http://www.wikidata.org/entity/Q948814" }
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w-pos",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#scheme" },
+      "skos:broader": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#w" },
+      "skos:notation": "w+",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Radical" },
+        { "@language": "sv", "@value": "Radikal" }
+      ],
+      "skos:altLabel": [
+        { "@language": "en", "@value": "Accelerationist" },
+        { "@language": "sv", "@value": "Accelerationistisk" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Wants fast, fundamental change and is willing to break with norms or the existing system." },
+        { "@language": "sv", "@value": "Vill ha snabb, grundläggande förändring och är beredd att bryta mot normer eller det befintliga systemet." }
+      ],
+      "skos:relatedMatch": [
+        { "@id": "http://www.wikidata.org/entity/Q97570923" },
+        { "@id": "http://www.wikidata.org/entity/Q16001522" }
+      ]
+    },
+
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#measures",
+      "@type": "skos:ConceptScheme",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Political Sphere measures" },
+        { "@language": "sv", "@value": "Politiska sfärens mått" }
+      ],
+      "skos:hasTopConcept": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#seats" }
+    },
+    {
+      "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#seats",
+      "@type": "skos:Concept",
+      "skos:inScheme": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#measures" },
+      "skos:topConceptOf": { "@id": "https://oscaralmgren.github.io/political-sphere/vocab/axes.jsonld#measures" },
+      "skos:notation": "seats",
+      "skos:prefLabel": [
+        { "@language": "en", "@value": "Seats won" },
+        { "@language": "sv", "@value": "Vunna mandat" }
+      ],
+      "skos:definition": [
+        { "@language": "en", "@value": "Seats a party won in the latest national election of its country's main chamber. Not a position on an axis: the maximum is the chamber size." },
+        { "@language": "sv", "@value": "Antal mandat ett parti vann i det senaste nationella valet till landets huvudkammare. Ingen position på en axel: maxvärdet är kammarens storlek." }
+      ]
+    }
+  ]
+}

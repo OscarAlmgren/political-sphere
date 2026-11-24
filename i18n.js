@@ -389,7 +389,7 @@ export const STRINGS = {
 };
 
 /** Swedish names for the countries (English names live in countries.js). */
-const COUNTRY_NAMES_SV = {
+export const COUNTRY_NAMES_SV = {
   SE: 'Sverige', NO: 'Norge', DK: 'Danmark', FI: 'Finland', IS: 'Island',
   AT: 'Österrike', BE: 'Belgien', BG: 'Bulgarien', HR: 'Kroatien', CY: 'Cypern', CZ: 'Tjeckien', EE: 'Estland',
   FR: 'Frankrike', DE: 'Tyskland', GR: 'Grekland', HU: 'Ungern', IE: 'Irland', IT: 'Italien', LV: 'Lettland',
@@ -399,7 +399,7 @@ const COUNTRY_NAMES_SV = {
 };
 
 /** Generic English chamber names -> Swedish. Native names (Bundestag, Sejm, …) are left as they are. */
-const CHAMBERS_SV = {
+export const CHAMBERS_SV = {
   Riksdag: 'Riksdagen', Storting: 'Stortinget', Folketing: 'Folketinget', Althing: 'Alltinget',
   Chamber: 'Deputeradekammaren', 'National Assembly': 'Nationalförsamlingen',
   'House of Representatives': 'Representanthuset', 'Chamber of Deputies': 'Deputeradekammaren',
