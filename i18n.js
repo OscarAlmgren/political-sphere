@@ -18,13 +18,13 @@ export const DEFAULT_LANG = 'sv';
 
 export const STRINGS = {
   sv: {
-    'app.title': 'Politisk kompass 4D',
+    'app.title': 'Politiska sfären 4D',
     'app.subtitle': 'Politiska partier som vektorer i ℝ⁴',
     'lang.label': 'Språk',
     'hud.collapse': 'Minimera panelen',
     'hud.expand': 'Maximera panelen',
     'hud.aria': 'Kontroller och resultat',
-    'stage.aria': 'Interaktiv politisk 3D-kompass. En tabell över alla partier finns i sidopanelen.',
+    'stage.aria': 'Interaktiv politisk 3D-sfär. En tabell över alla partier finns i sidopanelen.',
     'you.label': 'Du',
 
     'countries.title': 'Länder',
@@ -124,7 +124,7 @@ export const STRINGS = {
     'compare.dontShow': 'Visa inte detta igen',
     'compare.close': 'Stäng',
 
-    'welcome.title': 'Välkommen till den politiska kompassen i 4D',
+    'welcome.title': 'Välkommen till den politiska sfären i 4D',
     'welcome.intro': 'Varje parti är en punkt i en 3D-ruta, och den fjärde dimensionen syns som färg och storlek. Rutan är interaktiv, så utforska den själv:',
     'welcome.i1.k': 'Rotera och zooma',
     'welcome.i1.t': 'Dra i rutan för att vrida den. Scrolla eller nyp för att zooma.',
@@ -177,7 +177,7 @@ export const STRINGS = {
     'approx.composition': 'ungefärligt, kammarens sammansättning',
     'approx.notfinal': 'ungefärligt, inte slutgiltigt',
 
-    'fallback.title': 'Politisk kompass 4D',
+    'fallback.title': 'Politiska sfären 4D',
     'fallback.reasonWebgl': 'WebGL2 finns inte i den här webbläsaren eller är avstängt.',
     'fallback.reasonLoad': '3D-scenen kunde inte startas ({err}). Three.js laddas från ett CDN, så kontrollera anslutningen och ladda om.',
     'fallback.intro': '3D-vyn kräver WebGL2. Här är partivektorerna i stället (X ekonomi, Y GAL+/TAN−, Z antietablissemang+, W radikal+):',
@@ -187,13 +187,13 @@ export const STRINGS = {
   },
 
   en: {
-    'app.title': 'Political Compass 4D',
+    'app.title': 'The Political Sphere 4D',
     'app.subtitle': 'Political parties as vectors in ℝ⁴',
     'lang.label': 'Language',
     'hud.collapse': 'Minimise panel',
     'hud.expand': 'Maximise panel',
     'hud.aria': 'Controls and results',
-    'stage.aria': 'Interactive 3D political compass. A table of all parties is available in the side panel.',
+    'stage.aria': 'Interactive 3D political sphere. A table of all parties is available in the side panel.',
     'you.label': 'You',
 
     'countries.title': 'Countries',
@@ -293,7 +293,7 @@ export const STRINGS = {
     'compare.dontShow': 'Don’t show this again',
     'compare.close': 'Close',
 
-    'welcome.title': 'Welcome to the 4D political compass',
+    'welcome.title': 'Welcome to the 4D political sphere',
     'welcome.intro': 'Every party is a point in a 3D box, and the fourth dimension shows as colour and size. The box is interactive, so explore it yourself:',
     'welcome.i1.k': 'Rotate and zoom',
     'welcome.i1.t': 'Drag the box to turn it. Scroll or pinch to zoom.',
@@ -346,7 +346,7 @@ export const STRINGS = {
     'approx.composition': 'approx., chamber composition',
     'approx.notfinal': 'approx., not final',
 
-    'fallback.title': 'Political Compass 4D',
+    'fallback.title': 'Political Sphere 4D',
     'fallback.reasonWebgl': 'WebGL2 is not available in this browser, or it is disabled.',
     'fallback.reasonLoad': 'The 3D scene could not start ({err}). Three.js is loaded from a CDN, so check your connection and reload.',
     'fallback.intro': 'The 3D view needs WebGL2. Here are the party vectors instead (X economic, Y GAL+/TAN−, Z anti-establishment+, W radical+):',
