@@ -63,7 +63,7 @@ reduceMotionMQ.addEventListener('change', () => { controls.enableDamping = !redu
 
 /* ------------------------------------------------------------ space / axes */
 const axisLabels = []; // { axis, div }: end-of-axis labels, faded out when the camera looks straight along their axis
-const gridPlanes = {}; // box | xy | xz | yz | floor -> object3D, toggled from the HUD
+const gridPlanes = {}; // box | xy | xz | yz -> object3D, toggled from the HUD
 function buildSpace() {
   const g = new THREE.Group();
   const box = new THREE.BoxGeometry(2, 2, 2);
@@ -88,11 +88,10 @@ function buildSpace() {
   const gXZ = grid(0.16);                         // y = 0 (horizontal)
   const gXY = grid(0.16); gXY.rotation.x = Math.PI / 2; // z = 0
   const gYZ = grid(0.16); gYZ.rotation.z = Math.PI / 2; // x = 0
-  const floor = grid(0.26); floor.position.y = -1;      // Y = -1 floor
-  g.add(gXZ, gXY, gYZ, floor);
-  Object.assign(gridPlanes, { box: outerBox, xy: gXY, xz: gXZ, yz: gYZ, floor });
+  g.add(gXZ, gXY, gYZ);
+  Object.assign(gridPlanes, { box: outerBox, xy: gXY, xz: gXZ, yz: gYZ });
   // Default view: only the outer box. The grid planes are opt-in from the HUD.
-  for (const k of ['xy', 'xz', 'yz', 'floor']) gridPlanes[k].visible = false;
+  for (const k of ['xy', 'xz', 'yz']) gridPlanes[k].visible = false;
 
   // The three axes through the origin are separate from the grids, so they stay visible when grids are hidden.
   const axisMat = new THREE.LineBasicMaterial({ color: 0xe4eaff, transparent: true, opacity: 0.9 });
@@ -357,8 +356,8 @@ function applySizes() {
 
 // Grid plane toggles. Axis lines through the origin are not part of these grids and always stay on.
 const gridBoxes = [];
-['box', 'xy', 'xz', 'yz', 'floor'].forEach((key) => {
-  const wrap = el('label', 'check');
+['box', 'xy', 'xz', 'yz'].forEach((key) => {
+  const wrap = el('label', 'check wide'); // the plane names are long: one per row
   trAttr(wrap, 'title', `grid.${key}.tip`);
   const box = el('input');
   box.type = 'checkbox';
@@ -826,7 +825,6 @@ function render() {
     return sec;
   }).filter(Boolean);
   $('leaderboard').replaceChildren(...(sections.length ? sections : [el('p', 'hint', t('matches.pick'))]));
-  $('cos-hint').hidden = matches.length === 0 || matches.every((m) => m.cosine !== null);
 
   // Note under the seat toggle: which selected countries have approximate seat figures.
   const approx = state.slots.filter(Boolean).map((c) => COUNTRY_BY_CODE.get(c)).filter((c) => c.election.approx).map((c) => countryName(c));

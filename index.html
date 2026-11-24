@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politiska sfären 4D</title>
-<link rel="stylesheet" href="style.css?v=20261124c">
+<link rel="stylesheet" href="style.css?v=20261124i">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261124c",
-    "./i18n.js": "./i18n.js?v=20261124c",
-    "./countries.js": "./countries.js?v=20261124c",
-    "./governments.js": "./governments.js?v=20261124c",
-    "./explain.js": "./explain.js?v=20261124c",
-    "./data.js": "./data.js?v=20261124c",
-    "./math.js": "./math.js?v=20261124c",
-    "./table.js": "./table.js?v=20261124c"
+    "./app.js": "./app.js?v=20261124i",
+    "./i18n.js": "./i18n.js?v=20261124i",
+    "./countries.js": "./countries.js?v=20261124i",
+    "./governments.js": "./governments.js?v=20261124i",
+    "./explain.js": "./explain.js?v=20261124i",
+    "./data.js": "./data.js?v=20261124i",
+    "./math.js": "./math.js?v=20261124i",
+    "./table.js": "./table.js?v=20261124i"
   }
 }
 </script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261124c in the import map
-     and in the stylesheet link: sed -i '' 's/20261124c/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261124i in the import map
+     and in the stylesheet link: sed -i '' 's/20261124i/NEW/g' index.html -->
 
 </head>
 <body>
@@ -120,9 +120,17 @@
           <input type="checkbox" id="you-toggle" autocomplete="off">
           <span data-i18n="you.show">Visa markören ”Du”</span>
         </label>
-        <p id="you-hint" class="hint" data-i18n="you.hint" hidden>Markören är dold. Träffar och skivläge använder fortfarande värdena nedan.</p>
+        <p id="you-hint" class="hint" data-i18n="you.hint" hidden>Markören är dold. Träffar och markeringen av lika förändringstakt använder fortfarande värdena nedan.</p>
+        <h2><span data-i18n="matches.title">Närmaste träffar</span> <span class="dim-note" data-i18n="matches.in">i ℝ⁴</span></h2>
+        <p id="move-hint" class="hint" data-i18n="matches.moveHint">Ändra reglage på någon av värdena nedan för att se vilka partier du är närmast</p>
         <div id="sliders"></div>
-        <button id="reset" type="button" data-i18n="you.reset">Återställ till origo</button>
+        <div id="leaderboard" aria-live="polite"></div>
+        <label class="switch">
+          <input type="checkbox" id="slice-toggle" role="switch" autocomplete="off">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text"><span data-i18n="slice.title">Visa lika förändringstakt</span><small id="slice-count">Markera enheter inom ±0.4 från din förändringstakt</small></span>
+        </label>
+        <button id="reset" type="button" data-i18n="you.reset">Nollställ värden</button>
       </section>
 
       <section>
@@ -144,20 +152,6 @@
         <h2 data-i18n="legend.title">W-axelns färg</h2>
         <div id="w-legend" class="legend-bar" role="img" aria-label="Färgskala från blått (stegvis) via violett till rödorange (radikal)" data-i18n-aria-label="legend.aria"></div>
         <div class="legend-labels"><span data-i18n="legend.neg">−1 Stegvis</span><span>0</span><span data-i18n="legend.pos">+1 Radikal</span></div>
-      </section>
-
-      <section>
-        <label class="switch">
-          <input type="checkbox" id="slice-toggle" role="switch" autocomplete="off">
-          <span class="switch-track" aria-hidden="true"></span>
-          <span class="switch-text"><span data-i18n="slice.title">W-skivläge</span><small id="slice-count">Markera enheter inom ±0.4 från ditt W</small></span>
-        </label>
-      </section>
-
-      <section>
-        <h2><span data-i18n="matches.title">Närmaste träffar</span> <span class="dim-note" data-i18n="matches.in">i ℝ⁴</span></h2>
-        <p id="cos-hint" class="hint" data-i18n="matches.cosHint" hidden>Cosinuslikhet är odefinierad i origo. Flytta ett reglage så att ”Du” får en riktning.</p>
-        <div id="leaderboard" aria-live="polite"></div>
       </section>
 
       <p class="foot" data-i18n="foot">Matchning % = (1 − d/4) × 100, där 4 är det största möjliga 4D-avståndet. Cosinus jämför bara riktning. Land A ritas som sfärer (●), land B som diamanter (◆). Partiernas positioner är grova, illustrativa uppskattningar, inte mätningar. Se ”Varifrån kommer siffrorna?” ovan.</p>
