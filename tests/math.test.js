@@ -8,7 +8,7 @@ import { COUNTRIES, COUNTRY_BY_CODE, COUNTRY_GROUPS } from '../countries.js';
 import { GOVERNMENTS, GOVERNMENT_BY_CODE } from '../governments.js';
 import { minimumSpanningTree } from '../math.js';
 import { COUNTRY_IDS, PARTY_IDS } from '../ids.js';
-import { buildGraph, BASE, VOCAB, axisId, seatsId, datasetId, methodId, partyId, observationId } from '../lod.js';
+import { buildGraph, expandId, CONTEXT, BASE, VOCAB, axisId, seatsId, datasetId, methodId, partyId, observationId } from '../lod.js';
 
 const PARTIES = COUNTRY_BY_CODE.get('SE').parties;
 
@@ -284,9 +284,10 @@ test('ids: formats (Wikidata QIDs, ISO 3166-1 alpha-3, Party Facts integers) and
 
 test('lod: unique @ids; every party has its four axis observations (equal to its vector) and a seats observation', () => {
   const g = buildGraph()['@graph'];
-  const ids = g.map((n) => n['@id']);
+  // Ids in the graph are compact ("ps:party-SE-V"); compare what a JSON-LD processor would make of them.
+  const ids = g.map((n) => expandId(n['@id']));
   assert(new Set(ids).size === ids.length, `duplicate @id: ${ids.find((q, i) => ids.indexOf(q) !== i)}`);
-  const byId = new Map(g.map((n) => [n['@id'], n]));
+  const byId = new Map(g.map((n) => [expandId(n['@id']), n]));
   for (const c of COUNTRIES) {
     for (const p of c.parties) {
       const node = byId.get(partyId(c.code, p.abbr));
@@ -295,24 +296,25 @@ test('lod: unique @ids; every party has its four axis observations (equal to its
         const o = byId.get(observationId(c.code, p.abbr, k));
         assert(o && o['@type'] === 'Observation', `${p.id}: no ${k} observation`);
         assert(o.value === p.vec[i], `${p.id}: ${k} is ${o.value}, expected ${p.vec[i]}`);
-        assert(o.observationAbout['@id'] === node['@id'] && o.measuredProperty['@id'] === axisId(k), `${p.id}: ${k} observation points at the wrong party or axis`);
+        assert(expandId(o.observationAbout['@id']) === partyId(c.code, p.abbr) && expandId(o.measuredProperty['@id']) === axisId(k), `${p.id}: ${k} observation points at the wrong party or axis`);
       });
       const s = byId.get(observationId(c.code, p.abbr, 'seats'));
       if (p.seats == null) assert(!s, `${p.id}: seats observation without seats`);
-      else assert(s && s.value === p.seats && s.maxValue === c.election.total && s.measuredProperty['@id'] === seatsId, `${p.id}: bad seats observation`);
+      else assert(s && s.value === p.seats && s.maxValue === c.election.total && expandId(s.measuredProperty['@id']) === seatsId, `${p.id}: bad seats observation`);
     }
   }
 });
 test('lod: every reference into this site resolves to a node (or to a known axis / the seats concept)', () => {
   const g = buildGraph()['@graph'];
-  const have = new Set(g.map((n) => n['@id']));
+  const have = new Set(g.map((n) => expandId(n['@id'])));
   const vocab = new Set([...AXIS_KEYS.map(axisId), seatsId]);
   const bad = [];
   (function walk(v) {
     if (Array.isArray(v)) return v.forEach(walk);
     if (!v || typeof v !== 'object') return;
     const keys = Object.keys(v);
-    if (keys.length === 1 && keys[0] === '@id' && v['@id'].startsWith(BASE) && !have.has(v['@id']) && !vocab.has(v['@id'])) bad.push(v['@id']);
+    const id = keys.length === 1 && keys[0] === '@id' ? expandId(v['@id']) : null;
+    if (id && id.startsWith(BASE) && !have.has(id) && !vocab.has(id)) bad.push(id);
     Object.values(v).forEach(walk);
   })(g);
   assert(!bad.length, `dangling references: ${bad.slice(0, 5).join(', ')}`);
@@ -320,13 +322,25 @@ test('lod: every reference into this site resolves to a node (or to a known axis
 });
 test('lod: governments only point at parties that exist, one government node per country', () => {
   const g = buildGraph()['@graph'];
-  const have = new Set(g.map((n) => n['@id']));
-  const govs = g.filter((n) => n['@type'] === 'GovernmentOrganization' && n['@id'].includes('#government-'));
+  const have = new Set(g.map((n) => expandId(n['@id'])));
+  const govs = g.filter((n) => n['@type'] === 'GovernmentOrganization' && expandId(n['@id']).includes('#government-'));
   assert(govs.length === COUNTRIES.length, `${govs.length} government nodes for ${COUNTRIES.length} countries`);
   for (const gov of govs) for (const role of gov.member) {
     const m = role.member;
-    assert(m['@id'] ? have.has(m['@id']) : m.name, `${gov['@id']}: role points at nothing`);
+    assert(m['@id'] ? have.has(expandId(m['@id'])) : m.name, `${gov['@id']}: role points at nothing`);
   }
+});
+test('lod: ids are compact (prefixes declared in @context), so the graph stays small', () => {
+  const g = buildGraph();
+  for (const p of ['ps', 'axes', 'wd', 'pf', 'eu']) assert(typeof g['@context'][p] === 'string', `@context lacks the "${p}" prefix`);
+  assert(CONTEXT.ps === `${BASE}#` && CONTEXT.axes === `${VOCAB}#`, 'prefixes do not match BASE / VOCAB');
+  const text = JSON.stringify(g);
+  // The site URL may still appear a few times (e.g. the dataset's url), but not once per id as before (~5,900 times).
+  const hits = text.split(BASE).length - 1;
+  assert(hits < 20, `site URL appears ${hits} times: ids are not being shortened`);
+  assert(text.length < 500 * 1024, `graph is ${Math.round(text.length / 1024)} KB; expected well under 500 KB`);
+  assert(expandId('ps:party-SE-V') === partyId('SE', 'V') && expandId('axes:x') === axisId('x'), 'expandId does not invert the prefixes');
+  assert(expandId('https://example.org/x') === 'https://example.org/x' && expandId('plain') === 'plain', 'expandId must leave other ids alone');
 });
 test('lod: the graph survives a JSON round trip unchanged', () => {
   const g = buildGraph();

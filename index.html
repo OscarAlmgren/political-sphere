@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>Politiska sfären 4D</title>
-<link rel="stylesheet" href="style.css?v=20261124k">
+<link rel="stylesheet" href="style.css?v=20261125a">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/",
-    "./app.js": "./app.js?v=20261124k",
-    "./i18n.js": "./i18n.js?v=20261124k",
-    "./countries.js": "./countries.js?v=20261124k",
-    "./governments.js": "./governments.js?v=20261124k",
-    "./explain.js": "./explain.js?v=20261124k",
-    "./data.js": "./data.js?v=20261124k",
-    "./math.js": "./math.js?v=20261124k",
-    "./table.js": "./table.js?v=20261124k",
-    "./ids.js": "./ids.js?v=20261124k",
-    "./lod.js": "./lod.js?v=20261124k"
+    "./app.js": "./app.js?v=20261125a",
+    "./i18n.js": "./i18n.js?v=20261125a",
+    "./countries.js": "./countries.js?v=20261125a",
+    "./governments.js": "./governments.js?v=20261125a",
+    "./explain.js": "./explain.js?v=20261125a",
+    "./data.js": "./data.js?v=20261125a",
+    "./math.js": "./math.js?v=20261125a",
+    "./table.js": "./table.js?v=20261125a",
+    "./ids.js": "./ids.js?v=20261125a",
+    "./lod.js": "./lod.js?v=20261125a"
   }
 }
 </script>
 <!-- Linked data. This static block is what crawlers see without running JavaScript; lod.js adds the full graph (countries,
-     parties, positions, governments) as <script id="ld-graph"> once the page is idle. Both use the same @id values, so
-     they merge. The axes are defined in vocab/axes.jsonld (SKOS). -->
+     parties, positions, governments) as <script id="ld-graph"> once the page is idle. Both use the same @id values (the runtime
+     graph writes them as compact ids such as ps:dataset, which expand to the full URLs used here), so they merge. The axes are defined in vocab/axes.jsonld (SKOS). -->
 <link rel="describedby" type="application/ld+json" href="vocab/axes.jsonld">
 <script type="application/ld+json">
 {
@@ -63,8 +63,8 @@
 }
 </script>
 <!-- Cache busting: every local module is mapped to a versioned URL above, so browsers (and GitHub Pages' 10-minute
-     cache) can never mix old and new modules after a release. When you release, bump 20261124k in the import map
-     and in the stylesheet link: sed -i '' 's/20261124k/NEW/g' index.html -->
+     cache) can never mix old and new modules after a release. When you release, bump 20261125a in the import map
+     and in the stylesheet link: sed -i '' 's/20261125a/NEW/g' index.html -->
 
 </head>
 <body>

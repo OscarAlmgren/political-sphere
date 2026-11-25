@@ -35,10 +35,53 @@ const ref = (id) => ({ '@id': id });
 const both = (en, sv) => (sv && sv !== en ? [{ '@language': 'en', '@value': en }, { '@language': 'sv', '@value': sv }] : en);
 const compact = (obj) => Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null && !(Array.isArray(v) && !v.length)));
 
+// Prefixes for compact ids ("ps:party-SE-V" instead of the full URL). The site prefix alone was ~40% of the graph before
+// this; a JSON-LD processor expands the compact ids to exactly the absolute ids the helpers above return.
+const PREFIXES = {
+  ps: `${BASE}#`,
+  axes: `${VOCAB}#`,
+  wd: WD,
+  pf: PF,
+  eu: EU_COUNTRY,
+};
+
 export const CONTEXT = {
   '@vocab': 'https://schema.org/',
   skos: 'http://www.w3.org/2004/02/skos/core#',
   dct: 'http://purl.org/dc/terms/',
+  ...PREFIXES,
+};
+
+const PREFIX_LIST = Object.entries(PREFIXES);
+
+/** Absolute id -> compact id, if it starts with one of our prefixes. */
+const shortenId = (id) => {
+  for (const [name, ns] of PREFIX_LIST) if (id.startsWith(ns) && id.length > ns.length) return `${name}:${id.slice(ns.length)}`;
+  return id;
+};
+
+/** Compact id -> absolute id (what a JSON-LD processor does). Ids that are already absolute pass through. */
+export function expandId(id) {
+  const i = id.indexOf(':');
+  const ns = i > 0 ? PREFIXES[id.slice(0, i)] : undefined;
+  return ns ? ns + id.slice(i + 1) : id;
+}
+
+/**
+ * Shortens every "@id" string inside a JSON value, in place (copying ~1,700 nodes cost about 10 ms; this costs ~1 ms).
+ * Only used on the nodes buildGraph() has just created, so nothing shared is modified.
+ */
+const shortenIds = (v) => {
+  if (Array.isArray(v)) {
+    for (const x of v) shortenIds(x);
+  } else if (v && typeof v === 'object') {
+    for (const k in v) {
+      const x = v[k];
+      if (k === '@id' && typeof x === 'string') v[k] = shortenId(x);
+      else if (x && typeof x === 'object') shortenIds(x);
+    }
+  }
+  return v;
 };
 
 const METHOD = {
@@ -169,11 +212,11 @@ function governmentNode(c) {
 export function buildGraph() {
   return {
     '@context': CONTEXT,
-    '@graph': [
+    '@graph': shortenIds([
       datasetNode(),
       methodNode(),
       ...COUNTRIES.flatMap((c) => [...countryNodes(c), ...partyNodes(c), ...governmentNode(c)]),
-    ],
+    ]),
   };
 }
 
