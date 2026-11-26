@@ -40,9 +40,9 @@ export const STRINGS = {
     'parties.table': 'Alla partier (tabell)',
     'data.button': 'ⓘ Varifrån kommer siffrorna?',
 
-    'you.title': 'Din position',
+    'you.title': 'Din position vs partierna',
     'you.show': 'Visa markören ”Du”',
-    'you.hint': 'Markören är dold. Träffar och markeringen av lika förändringstakt använder fortfarande värdena nedan.',
+    'you.hint': 'Markören är dold. Reglage och förändringstakt används för matchning mot partier i bakgrunden.',
     'you.reset': 'Nollställ värden',
 
     'view.title': 'Vy',
@@ -225,9 +225,9 @@ export const STRINGS = {
     'parties.table': 'All parties (table)',
     'data.button': 'ⓘ Where do these numbers come from?',
 
-    'you.title': 'Your position',
+    'you.title': 'Your position vs Parties',
     'you.show': 'Show “You” marker',
-    'you.hint': 'Marker hidden. Matches and the equal-pace highlight still use the values below.',
+    'you.hint': 'The Marker is hidden. Controls and the rate of change are used for matching against segments in the background.',
     'you.reset': 'Reset values',
 
     'view.title': 'View',
